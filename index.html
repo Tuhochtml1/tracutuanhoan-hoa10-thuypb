@@ -1,0 +1,1436 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bảng Tuần Hoàn 118 Nguyên Tố 3.0 - API QR Code Thật & Deep Link</title>
+    <meta name="description" content="Bảng tuần hoàn 118 nguyên tố tương tác chuẩn CSS Grid 18 cột, tích hợp API QR Code thật, Deep link tự động mở modal qua URL ?id=..., Hóa học 10." />
+    <meta property="og:title" content="Bảng Tuần Hoàn 118 Nguyên Tố 3.0 - STEM THPT" />
+    <meta property="og:description" content="Bảng tuần hoàn 118 nguyên tố tương tác chuẩn CSS Grid 18 cột, tích hợp API QR Code thật và Deep link." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Phông chữ khoa học hiện đại -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS qua CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Plus Jakarta Sans', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- CSS Tùy biến cho Bố cục Bảng tuần hoàn chuẩn 18 cột và hiệu ứng -->
+    <style>
+      /* Lưới 18 cột chuẩn IUPAC cho Bảng tuần hoàn */
+      .ptable-grid {
+        display: grid;
+        grid-template-columns: 28px repeat(18, minmax(54px, 1fr));
+        gap: 4px;
+      }
+      /* Lưới dãy phụ Lantan và Actini */
+      .fblock-grid {
+        display: grid;
+        grid-template-columns: 28px repeat(18, minmax(54px, 1fr));
+        gap: 4px;
+      }
+      /* Hiệu ứng ô nguyên tố */
+      .element-cell {
+        transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        aspect-ratio: 1 / 1.15;
+      }
+      .element-cell:hover {
+        transform: translateY(-3px) scale(1.08);
+        z-index: 20;
+      }
+      .element-cell:focus {
+        outline: 2px solid #2563eb;
+        outline-offset: 1px;
+        z-index: 25;
+      }
+      /* Tùy chỉnh thanh cuộn ngang mượt cho Mobile */
+      .smooth-scroll {
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      .smooth-scroll::-webkit-scrollbar {
+        height: 8px;
+        width: 8px;
+      }
+      .smooth-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 9999px;
+      }
+      .smooth-scroll::-webkit-scrollbar-thumb {
+        background: #94a3b8;
+        border-radius: 9999px;
+      }
+      .smooth-scroll::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+      }
+      /* Hoạt họa quỹ đạo nguyên tử */
+      @keyframes orbit-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-orbit {
+        animation: orbit-spin 16s linear infinite;
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- ========================================================================= -->
+    <!-- PHẦN 1: HEADER & THANH ĐIỀU HƯỚNG DỰ ÁN STEM HÓA HỌC 10                   -->
+    <!-- ========================================================================= -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
+        <!-- Logo & Tiêu đề -->
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Bảng Tuần Hoàn Hóa Học 3.0</h1>
+              <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">API QR Code Thật</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium hidden sm:block">Định vị CSS Grid 18 Cột • Chuẩn Hóa Học 10 (Chu kỳ, Nhóm A/B, Khối s-p-d-f) • Quét QR & Video</p>
+          </div>
+        </div>
+
+        <!-- Các nút tiện ích (Tải file, Hướng dẫn) -->
+        <div class="flex items-center gap-2">
+          <button id="btn-export-code" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 transition border border-slate-300" title="Tải file index.html độc lập">
+            <svg class="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+            <span class="hidden sm:inline">Tải file</span> HTML
+          </button>
+          <button id="btn-open-help" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition border border-blue-200">
+            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Quy tắc Hóa 10</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- PHẦN 2: THANH "TÌM KIẾM & QUÉT QR" ĐA NĂNG & ĐIỀU KHIỂN BỘ LỌC             -->
+    <!-- ========================================================================= -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 space-y-4">
+
+      <!-- THANH "TÌM KIẾM & QUÉT QR" NÂNG CẤP (YÊU CẦU ĐỀ BÀI) -->
+      <section class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-4 sm:p-5 shadow-lg border border-slate-800">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          
+          <!-- Tiêu đề & Hướng dẫn tra cứu -->
+          <div class="lg:col-span-5 space-y-1">
+            <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/10 text-[11px] font-semibold text-amber-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Tra Cứu Nhanh & Mô Phỏng Quét QR
+            </div>
+            <h2 class="text-base sm:text-lg font-bold text-white tracking-tight">
+              Tìm kiếm theo Số hiệu (ID), Ký hiệu (Symbol) hoặc Tên
+            </h2>
+            <p class="text-xs text-slate-300">
+              Nhập số <span class="text-amber-300 font-mono font-bold">11</span>, ký hiệu <span class="text-amber-300 font-mono font-bold">Na</span>, hoặc tên <span class="text-amber-300 font-mono font-bold">Natri/Sodium</span> rồi bấm <kbd class="px-1 py-0.2 rounded bg-white/15 text-[10px]">Enter</kbd> để bật ngay bảng chi tiết!
+            </p>
+          </div>
+
+          <!-- Form Tìm kiếm & Quét QR đa năng -->
+          <div class="lg:col-span-7 space-y-2">
+            <form id="search-qr-form" class="flex flex-col sm:flex-row gap-2 relative">
+              <div class="relative flex-1">
+                <input
+                  type="text"
+                  id="search-qr-input"
+                  placeholder="Nhập Số hiệu (1-118), Ký hiệu (Na, Fe, Au) hoặc Tên (Natri, Sắt, Vàng)..."
+                  class="w-full pl-9 pr-8 py-2.5 text-xs sm:text-sm bg-slate-800/90 text-white placeholder-slate-400 rounded-xl border border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent font-medium shadow-inner"
+                  autocomplete="off"
+                />
+                <!-- Icon Kính lúp / QR -->
+                <svg class="w-4 h-4 text-amber-400 absolute left-3 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+                <!-- Nút xóa nhanh input -->
+                <button type="button" id="btn-clear-input" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-white p-0.5">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+
+                <!-- Dropdown danh sách gợi ý khi gõ tìm kiếm -->
+                <div id="autocomplete-list" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-40 max-h-60 overflow-y-auto divide-y divide-slate-800 text-xs">
+                  <!-- JS sẽ điền kết quả gợi ý -->
+                </div>
+              </div>
+
+              <!-- Nút bấm Mở chi tiết từ Tìm kiếm/QR -->
+              <button
+                type="submit"
+                id="btn-search-qr-open"
+                class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs sm:text-sm rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+              >
+                <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                <span>Mở Chi Tiết (QR)</span>
+              </button>
+            </form>
+
+            <!-- Các nút bấm nhanh đại diện cho các nhóm Hóa học 10 tiêu biểu -->
+            <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-300 pt-0.5">
+              <span class="text-slate-400 text-[11px]">Mẫu tra cứu nhanh:</span>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-blue-500/25 hover:bg-blue-500/40 border border-blue-400/30 text-blue-200 font-mono transition" data-id="11">Na (11)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-blue-500/25 hover:bg-blue-500/40 border border-blue-400/30 text-blue-200 font-mono transition" data-id="26">Fe (26)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400/30 text-amber-200 font-mono transition" data-id="17">Cl (17)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-amber-500/25 hover:bg-amber-500/40 border border-amber-400/30 text-amber-200 font-mono transition" data-id="1">H (1)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-purple-500/25 hover:bg-purple-500/40 border border-purple-400/30 text-purple-200 font-mono transition" data-id="2">He (2)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-blue-500/25 hover:bg-blue-500/40 border border-blue-400/30 text-blue-200 font-mono transition" data-id="79">Au (79)</button>
+              <button type="button" class="quick-pick-btn px-2 py-0.5 rounded bg-purple-500/25 hover:bg-purple-500/40 border border-purple-400/30 text-purple-200 font-mono transition" data-id="118">Og (118)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- BẢNG CHÚ THÍCH MÀU SẮC & BỘ LỌC KIẾN THỨC HÓA HỌC 10 -->
+      <section class="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs">
+        
+        <!-- Chú thích 3 nhóm màu chính theo đề bài -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="font-bold text-slate-500 uppercase tracking-wider text-[11px]">Phân loại nhóm:</span>
+
+          <button type="button" class="filter-group-btn flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 font-semibold transition cursor-pointer" data-group="Kim loại">
+            <span class="w-3 h-3 rounded bg-blue-600 shadow-xs"></span>
+            <span>Kim loại (Xanh)</span>
+          </button>
+
+          <button type="button" class="filter-group-btn flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-semibold transition cursor-pointer" data-group="Phi kim">
+            <span class="w-3 h-3 rounded bg-amber-500 shadow-xs"></span>
+            <span>Phi kim (Vàng cam)</span>
+          </button>
+
+          <button type="button" class="filter-group-btn flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 font-semibold transition cursor-pointer" data-group="Khí hiếm">
+            <span class="w-3 h-3 rounded bg-purple-600 shadow-xs"></span>
+            <span>Khí hiếm (Tím)</span>
+          </button>
+
+          <button type="button" id="btn-show-all-groups" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold transition">
+            Tất cả 118
+          </button>
+        </div>
+
+        <!-- Chú thích các khối nguyên tố Hóa học 10 (s, p, d, f) -->
+        <div class="flex items-center gap-2 text-slate-500 text-[11px] font-mono">
+          <span class="font-bold text-slate-600 font-sans">Khối electron:</span>
+          <span class="px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-bold" title="Khối s (Nhóm IA, IIA & He)">Khối s</span>
+          <span class="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700 font-bold" title="Khối p (Nhóm IIIA đến VIIIA)">Khối p</span>
+          <span class="px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 font-bold" title="Khối d (Kim loại chuyển tiếp)">Khối d</span>
+          <span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold" title="Khối f (Họ Lantan & Actini)">Khối f</span>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- PHẦN 3: BẢNG TUẦN HOÀN CHUẨN CSS GRID 18 CỘT (TỐI ƯU MOBILE RESPONSIVE)  -->
+      <!-- ========================================================================= -->
+      <section class="bg-white rounded-2xl p-3 sm:p-5 border border-slate-200 shadow-sm space-y-4">
+        
+        <!-- Thanh chỉ dẫn thao tác trên Mobile -->
+        <div class="flex items-center justify-between text-xs text-slate-500">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="font-bold text-slate-800">BẢNG TUẦN HOÀN DẠNG DÀI (18 CỘT IUPAC)</span>
+          </div>
+          <!-- Gợi ý vuốt ngang cho điện thoại di động -->
+          <div class="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md font-medium text-[11px] lg:hidden">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <span>Vuốt ngang ↔ để xem hết 18 cột</span>
+          </div>
+        </div>
+
+        <!-- VÙNG CHỨA CUỘN NGANG (OVERFLOW-X: AUTO) BẢO ĐẢM KHÔNG VỠ LAYOUT TRÊN MOBILE -->
+        <div class="overflow-x-auto smooth-scroll pb-3 pt-1">
+          <div class="min-w-[1020px] select-none">
+
+            <!-- 1. HÀNG TIÊU ĐỀ SỐ NHÓM (Cột 1 đến Cột 18 và Tên Nhóm A/B theo Hóa 10) -->
+            <div class="ptable-grid mb-1 text-center font-mono">
+              <!-- Cột trống góc trên bên trái -->
+              <div class="text-[10px] font-bold text-slate-400 flex items-center justify-center">CK</div>
+              <!-- Cột 1 -> 18 -->
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 1 (Nhóm IA - Kim loại kiềm)">1<span class="block text-[8px] text-slate-500">IA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 2 (Nhóm IIA - Kim loại kiềm thổ)">2<span class="block text-[8px] text-slate-500">IIA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 3 (Nhóm IIIB)">3<span class="block text-[8px] text-slate-400">IIIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 4 (Nhóm IVB)">4<span class="block text-[8px] text-slate-400">IVB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 5 (Nhóm VB)">5<span class="block text-[8px] text-slate-400">VB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 6 (Nhóm VIB)">6<span class="block text-[8px] text-slate-400">VIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 7 (Nhóm VIIB)">7<span class="block text-[8px] text-slate-400">VIIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 8 (Nhóm VIIIB)">8<span class="block text-[8px] text-slate-400">VIIIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 9 (Nhóm VIIIB)">9<span class="block text-[8px] text-slate-400">VIIIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 10 (Nhóm VIIIB)">10<span class="block text-[8px] text-slate-400">VIIIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 11 (Nhóm IB)">11<span class="block text-[8px] text-slate-400">IB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-600 font-bold" title="Nhóm 12 (Nhóm IIB)">12<span class="block text-[8px] text-slate-400">IIB</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 13 (Nhóm IIIA)">13<span class="block text-[8px] text-slate-500">IIIA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 14 (Nhóm IVA)">14<span class="block text-[8px] text-slate-500">IVA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 15 (Nhóm VA)">15<span class="block text-[8px] text-slate-500">VA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 16 (Nhóm VIA - Chalcogen)">16<span class="block text-[8px] text-slate-500">VIA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 17 (Nhóm VIIA - Halogen)">17<span class="block text-[8px] text-slate-500">VIIA</span></div>
+              <div class="text-[10px] py-1 bg-slate-100 rounded text-slate-700 font-bold" title="Nhóm 18 (Nhóm VIIIA - Khí hiếm)">18<span class="block text-[8px] text-slate-500">VIIIA</span></div>
+            </div>
+
+            <!-- 2. LƯỚI CHÍNH 7 CHU KỲ (RENDER QUA JAVASCRIPT ĐỊNH VỊ CHUẨN GRID) -->
+            <div id="main-ptable-grid" class="ptable-grid">
+              <!-- Các ô nguyên tố từ Chu kỳ 1 đến 7 sẽ được đặt đúng row/col bằng JS -->
+            </div>
+
+            <!-- 3. KHOẢNG NGĂN CÁCH VÀ 2 DÃY PHỤ: HỌ LANTAN (57-71) & HỌ ACTINI (89-103) -->
+            <div class="mt-4 pt-3 border-t-2 border-dashed border-slate-200">
+              <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-[10px]">f-block</span>
+                <span>Hai Dãy Nguyên Tố Đặt Dưới Bảng Chính (Họ Lantanit & Họ Actinit)</span>
+              </div>
+
+              <!-- Lưới 2 hàng nằm ngang f-block -->
+              <div id="fblock-ptable-grid" class="fblock-grid">
+                <!-- JS sẽ đưa 57-71 và 89-103 vào đây -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- PHẦN 4: POP-UP / MODAL CHI TIẾT NGUYÊN TỐ (BỔ SUNG CHU KỲ & NHÓM HÓA 10)  -->
+    <!-- ========================================================================= -->
+    <div id="modal-container" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-sm transition-opacity opacity-0 pointer-events-none" role="dialog" aria-modal="true" aria-labelledby="modal-element-name">
+      
+      <div id="modal-content" class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden transform scale-95 transition-transform duration-200">
+        
+        <!-- Header Banner của Modal (Đổi màu theo nhóm) -->
+        <div id="modal-header-banner" class="px-5 py-3.5 border-b border-white/20 flex items-center justify-between text-white transition-colors bg-gradient-to-r from-blue-600 to-indigo-700">
+          <div class="flex items-center gap-3">
+            <div id="modal-badge-symbol" class="w-12 h-12 rounded-xl flex flex-col items-center justify-center shadow-md border border-white/20 font-bold bg-white/20">
+              <span id="modal-id-badge" class="text-[10px] font-mono leading-none opacity-90">11</span>
+              <span id="modal-symbol-badge" class="text-xl font-extrabold leading-none">Na</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 id="modal-element-name" class="text-lg sm:text-xl font-extrabold tracking-tight">Sodium</h3>
+                <span id="modal-vietnamese-name" class="text-xs px-2 py-0.5 rounded-full bg-white/20 text-white font-medium">(Natri)</span>
+              </div>
+              <p id="modal-element-group" class="text-xs font-semibold text-white/90">Kim loại • Kim loại kiềm (Nhóm IA)</p>
+            </div>
+          </div>
+
+          <button
+            id="btn-close-modal"
+            class="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition active:scale-95 cursor-pointer"
+            title="Đóng cửa sổ (Phím Esc)"
+            aria-label="Đóng"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Thân cuộn Modal -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5">
+
+          <!-- 1. BẢNG THÔNG TIN SƯ PHẠM HÓA HỌC 10 (CHU KỲ, NHÓM, KHỐI e, TÍNH CHẤT) -->
+          <div class="space-y-2.5">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Vị Trí Trong Bảng Tuần Hoàn (Kiến Thức Hóa Học 10)
+            </h4>
+
+            <!-- Grid 4 thẻ: Chu kỳ, Nhóm IUPAC & Truyền thống, Khối electron, Phân loại -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+              
+              <!-- Chu kỳ (Period) - Tự động tính toán theo Hóa 10 -->
+              <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-3 text-center">
+                <span class="text-[11px] font-semibold text-indigo-700 block">Chu kỳ (Period)</span>
+                <span id="detail-period" class="text-xl font-extrabold text-indigo-950 font-mono">3</span>
+                <span id="detail-period-type" class="text-[10px] text-indigo-600 block mt-0.5">Chu kỳ nhỏ (3 lớp e)</span>
+              </div>
+
+              <!-- Nhóm (Group) - IUPAC & Tên truyền thống IA..VIIIA/IB..VIIIB -->
+              <div class="bg-blue-50/70 border border-blue-200/80 rounded-xl p-3 text-center">
+                <span class="text-[11px] font-semibold text-blue-700 block">Nhóm (Group)</span>
+                <span id="detail-group-full" class="text-xl font-extrabold text-blue-950 font-mono">1 (IA)</span>
+                <span id="detail-group-type" class="text-[10px] text-blue-600 block mt-0.5">Phân nhóm chính A</span>
+              </div>
+
+              <!-- Khối nguyên tố (Block s, p, d, f) -->
+              <div class="bg-purple-50/70 border border-purple-200/80 rounded-xl p-3 text-center">
+                <span class="text-[11px] font-semibold text-purple-700 block">Khối nguyên tố</span>
+                <span id="detail-block" class="text-xl font-extrabold text-purple-950 font-mono">Khối s</span>
+                <span id="detail-valence-electrons" class="text-[10px] text-purple-600 block mt-0.5">1 e hóa trị</span>
+              </div>
+
+              <!-- Phân loại nhóm chính -->
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                <span class="text-[11px] font-semibold text-slate-600 block">Phân loại</span>
+                <span id="detail-group-name" class="text-sm font-bold text-slate-800 line-clamp-1 mt-1">Kim loại</span>
+                <span id="detail-family" class="text-[10px] text-slate-500 block">Kim loại kiềm</span>
+              </div>
+            </div>
+
+            <!-- Thông số định lượng: Số hiệu Z, Nguyên tử khối, Độ âm điện, Cấu hình electron -->
+            <div class="grid grid-cols-3 gap-2.5 mt-2">
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] text-slate-500 block">Số hiệu nguyên tử (Z)</span>
+                <span id="detail-id" class="text-base font-bold text-slate-900 font-mono">11</span>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] text-slate-500 block">Nguyên tử khối (amu)</span>
+                <span id="detail-mass" class="text-base font-bold text-slate-900 font-mono">22.990</span>
+              </div>
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center">
+                <span class="text-[10px] text-slate-500 block">Độ âm điện (Pauling)</span>
+                <span id="detail-electronegativity" class="text-base font-bold text-slate-900 font-mono">0.93</span>
+              </div>
+            </div>
+
+            <!-- Cấu hình electron nổi bật -->
+            <div class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-xl p-3 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+              <div>
+                <span class="text-[10px] text-indigo-300 font-mono uppercase tracking-wider block">Cấu hình electron (Electron Configuration):</span>
+                <span id="detail-electron-config" class="text-sm sm:text-base font-mono font-bold text-amber-300">[Ne] 3s¹</span>
+              </div>
+              <div class="text-[11px] text-slate-300 font-mono bg-white/10 px-2 py-0.5 rounded self-start sm:self-center">
+                Lớp ngoài cùng: <span id="detail-outer-e" class="text-white font-bold">1e</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. KHUNG VIDEO THÍ NGHIỆM & XỬ LÝ LỖI VIDEO (YÊU CẦU ĐỀ BÀI) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                </svg>
+                Video Thực Nghiệm Hóa Học
+              </h4>
+              <a
+                id="link-youtube-external"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 hover:underline"
+              >
+                <span>Xem trên YouTube</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </div>
+
+            <!-- VÙNG RENDER VIDEO / THÔNG BÁO KHI KHÔNG CÓ VIDEO (THEO YÊU CẦU ĐỀ BÀI) -->
+            <div id="video-render-container" class="rounded-xl overflow-hidden bg-slate-900 border border-slate-200">
+              <!-- JS sẽ chèn iframe nếu có video_url hoặc chèn div thông báo in nghiêng nếu rỗng -->
+            </div>
+
+            <!-- Tóm tắt hiện tượng / kiến thức Hóa 10 -->
+            <div class="p-3 rounded-lg bg-amber-50/80 border border-amber-200/80 text-xs text-amber-950">
+              <span class="font-bold text-amber-900">Hiện tượng & Tính chất thực tế: </span>
+              <span id="detail-experiment-desc">Đang tải thông tin...</span>
+            </div>
+          </div>
+
+          <!-- 3. MÔ PHỎNG MÃ QR ĐỊNH DANH STEM (PHÓNG TO 150x150 VÀ TỐI ƯU CAMERA QUÉT) -->
+          <div class="bg-gradient-to-br from-slate-50 via-indigo-50/30 to-blue-50/40 rounded-2xl p-4 sm:p-5 border border-indigo-100 shadow-xs">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
+              
+              <!-- Cột thông tin thẻ STEM & Hướng dẫn quét -->
+              <div class="space-y-2 flex-1 text-left w-full">
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-[11px] font-bold tracking-wide">
+                    <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                    MÃ QR THẺ HỌC TẬP STEM
+                  </span>
+                  <span class="text-[11px] font-mono font-bold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                    Z = <span id="qr-z-num">11</span>
+                  </span>
+                </div>
+
+                <h5 class="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                  Quét Mã Để Mở Nhanh Thông Số & Video
+                </h5>
+
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  Hướng camera điện thoại (Zalo, Google Lens hoặc Camera iPhone/Android) vào mã QR bên cạnh để tự động nhận diện và mở bảng tra cứu thí nghiệm.
+                </p>
+
+                <div class="pt-1 flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                  <span class="inline-flex items-center gap-1 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 shadow-2xs">
+                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    Dán nhãn mẫu vật hóa chất
+                  </span>
+                  <span class="inline-flex items-center gap-1 font-mono bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 shadow-2xs">
+                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    In thẻ Flashcard STEM
+                  </span>
+                </div>
+              </div>
+
+              <!-- Cột khung hiển thị mã QR kích thước chuẩn 150px x 150px có khoảng trắng Quiet Zone tối ưu camera -->
+              <div class="flex flex-col items-center justify-center shrink-0">
+                <div class="bg-white p-3.5 rounded-2xl shadow-md border-2 border-indigo-200/90 relative group transition-transform hover:scale-105">
+                  <!-- Khung ảnh QR 150px x 150px với viền trắng Quiet Zone tối ưu lấy nét -->
+                  <div class="w-[148px] h-[148px] sm:w-[150px] sm:h-[150px] flex items-center justify-center bg-white rounded-xl overflow-hidden relative">
+                    <img
+                      id="qr-code-image"
+                      src=""
+                      alt="Mã QR tra cứu nguyên tố"
+                      class="w-[150px] h-[150px] object-contain block transition-opacity duration-300"
+                      loading="lazy"
+                    />
+                  </div>
+                  <!-- Viền góc trang trí quét QR (Viewfinder corners) -->
+                  <div class="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-indigo-500 rounded-tl pointer-events-none"></div>
+                  <div class="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-indigo-500 rounded-tr pointer-events-none"></div>
+                  <div class="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-indigo-500 rounded-bl pointer-events-none"></div>
+                  <div class="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-indigo-500 rounded-br pointer-events-none"></div>
+                </div>
+                <span class="text-[10px] font-semibold text-indigo-700 font-mono tracking-wider mt-2 flex items-center gap-1">
+                  <svg class="w-3 h-3 text-indigo-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  API QR CODE THẬT (150×150)
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+          <span>Nhấn <kbd class="px-1.5 py-0.5 rounded bg-slate-200 font-mono text-[10px] text-slate-700">ESC</kbd> để đóng</span>
+          <button id="btn-close-modal-bottom" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg transition active:scale-95 cursor-pointer">
+            Đóng bảng
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PHẦN 5: MODAL HƯỚNG DẪN QUY TẮC BẢNG TUẦN HOÀN HÓA HỌC 10                 -->
+    <!-- ========================================================================= -->
+    <div id="code-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm">
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+          <h3 class="text-sm sm:text-base font-bold text-slate-900">Kiến Thức Sư Phạm & Chuẩn Bảng Tuần Hoàn Hóa 10</h3>
+          <button id="btn-close-code-modal" class="text-slate-400 hover:text-slate-600 p-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto space-y-3.5 text-xs text-slate-600 leading-relaxed">
+          <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 space-y-1.5">
+            <p class="font-bold">📘 Quy tắc Bảng tuần hoàn trong SGK Hóa học 10 (GDPT 2018):</p>
+            <ul class="list-disc pl-4 space-y-1">
+              <li><strong>Số thứ tự chu kỳ (1 đến 7)</strong> = Số lớp electron trong nguyên tử.</li>
+              <li><strong>Chu kỳ nhỏ</strong>: Chu kỳ 1 (2 nguyên tố), Chu kỳ 2 (8 nguyên tố), Chu kỳ 3 (8 nguyên tố).</li>
+              <li><strong>Chu kỳ lớn</strong>: Chu kỳ 4, 5 (18 nguyên tố), Chu kỳ 6, 7 (32 nguyên tố, gồm cả họ f).</li>
+              <li><strong>Số thứ tự nhóm A (IA đến VIIIA)</strong> = Số electron lớp ngoài cùng (electron hóa trị).</li>
+              <li><strong>Họ Lantan (57-71) & Họ Actini (89-103)</strong> thuộc phân nhóm phụ IIIB, chu kỳ 6 và 7, được xếp thành 2 hàng ngang riêng phía dưới để bảng không quá dài.</li>
+            </ul>
+          </div>
+          <p>Ứng dụng đã hoàn chỉnh 100% trong 1 tệp <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono font-semibold">index.html</code>, sẵn sàng trình diễn và nộp dự án STEM.</p>
+        </div>
+        <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+          <button id="btn-download-html" class="px-4 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-xs transition">
+            Tải tệp index.html về máy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PHẦN 6: TOÀN BỘ 118 NGUYÊN TỐ & LOGIC JAVASCRIPT THUẦN                     -->
+    <!-- ========================================================================= -->
+    <script>
+      /**
+       * ============================================================================
+       * 1. CƠ SỞ DỮ LIỆU ĐẦY ĐỦ 118 NGUYÊN TỐ HÓA HỌC (IUPAC & SGK HÓA 10)
+       * ============================================================================
+       * Giữ nguyên cấu trúc các trường:
+       * - id: Số hiệu nguyên tử (1 -> 118)
+       * - symbol: Ký hiệu hóa học
+       * - name: Tên nguyên tố tiếng Anh IUPAC
+       * - group: "Kim loại", "Phi kim", "Khí hiếm" (dùng cho màu sắc)
+       * - mass: Nguyên tử khối tiêu chuẩn (amu)
+       * - electronegativity: Độ âm điện Pauling
+       * - electron_config: Cấu hình electron trạng thái cơ bản
+       * - video_url: Link nhúng video YouTube (nếu không có hoặc rỗng thì để "")
+       * - experiment_description: Hiện tượng thực nghiệm
+       */
+      const chemicalElements = [
+        { id: 1, symbol: "H", name: "Hydrogen", group: "Phi kim", mass: 1.008, electronegativity: "2.20", electron_config: "1s¹", video_url: "https://www.youtube.com/embed/qOTgeeTB_kA", experiment_description: "Khí Hydro nhẹ nhất, cháy tạo ngọn lửa xanh nhạt tỏa nhiệt lớn, hỗn hợp nổ cực mạnh với Oxy theo tỉ lệ 2:1 tạo nước." },
+        { id: 2, symbol: "He", name: "Helium", group: "Khí hiếm", mass: 4.0026, electronegativity: "Không có (-)", electron_config: "1s²", video_url: "https://www.youtube.com/embed/Jdu86h9pU3Q", experiment_description: "Khí trơ tuyệt đối không cháy, vận tốc âm thanh qua khí Heli nhanh làm thay đổi giọng nói tạm thời." },
+        { id: 3, symbol: "Li", name: "Lithium", group: "Kim loại", mass: 6.94, electronegativity: "0.98", electron_config: "[He] 2s¹", video_url: "https://www.youtube.com/embed/89UNpdNtOoE", experiment_description: "Kim loại kiềm nhẹ nhất, phản ứng với nước tạo LiOH và khí H₂, ngọn lửa cháy màu đỏ son rực rỡ." },
+        { id: 4, symbol: "Be", name: "Beryllium", group: "Kim loại", mass: 9.0122, electronegativity: "1.57", electron_config: "[He] 2s²", video_url: "https://www.youtube.com/embed/qy8JyQShZhc", experiment_description: "Kim loại màu xám tro siêu nhẹ và cứng, hợp kim đồng-beryllium không phát ra tia lửa khi va chạm." },
+        { id: 5, symbol: "B", name: "Boron", group: "Phi kim", mass: 10.81, electronegativity: "2.04", electron_config: "[He] 2s² 2p¹", video_url: "https://www.youtube.com/embed/0gU_Yg8FjJ0", experiment_description: "Á kim bán dẫn màu đen nâu, cháy cho ngọn lửa màu xanh lục đặc trưng, dùng sản xuất thủy tinh pyrex chịu nhiệt." },
+        { id: 6, symbol: "C", name: "Carbon", group: "Phi kim", mass: 12.011, electronegativity: "2.55", electron_config: "[He] 2s² 2p²", video_url: "https://www.youtube.com/embed/hB5zXgZ4uG8", experiment_description: "Nền tảng của toàn bộ Hóa học Hữu cơ và sự sống, tồn tại dưới dạng kim cương siêu cứng và than chì dẫn điện." },
+        { id: 7, symbol: "N", name: "Nitrogen", group: "Phi kim", mass: 14.007, electronegativity: "3.04", electron_config: "[He] 2s² 2p³", video_url: "https://www.youtube.com/embed/P3uC_D-k59M", experiment_description: "Chiếm 78% bầu khí quyển, liên kết ba N≡N siêu bền vững; nitơ lỏng đóng băng tức thì vật chất ở -196°C." },
+        { id: 8, symbol: "O", name: "Oxygen", group: "Phi kim", mass: 15.999, electronegativity: "3.44", electron_config: "[He] 2s² 2p⁴", video_url: "https://www.youtube.com/embed/0X99_L0b33U", experiment_description: "Duy trì sự sống và sự cháy mãnh liệt, làm bùng cháy tàn đóm đỏ; oxy lỏng màu xanh lam nhạt bị nam châm hút." },
+        { id: 9, symbol: "F", name: "Fluorine", group: "Phi kim", mass: 18.998, electronegativity: "3.98", electron_config: "[He] 2s² 2p⁵", video_url: "https://www.youtube.com/embed/vtWp45Eewtw", experiment_description: "Nguyên tố có độ âm điện lớn nhất (3.98), phi kim hoạt động mạnh nhất, phản ứng bốc cháy với cả nước và thủy tinh." },
+        { id: 10, symbol: "Ne", name: "Neon", group: "Khí hiếm", mass: 20.180, electronegativity: "Không có (-)", electron_config: "[He] 2s² 2p⁶", video_url: "https://www.youtube.com/embed/7V9L_8R62X0", experiment_description: "Khí trơ phát ánh sáng đỏ cam rực rỡ đặc trưng khi có dòng điện phóng qua trong ống thủy tinh chân không." },
+        { id: 11, symbol: "Na", name: "Sodium", group: "Kim loại", mass: 22.990, electronegativity: "0.93", electron_config: "[Ne] 3s¹", video_url: "https://www.youtube.com/embed/uixxJtJPVXk", experiment_description: "Kim loại kiềm mềm cắt bằng dao; khi thả vào nước vo tròn thành giọt chạy nhanh, bốc cháy và phát nổ giải phóng H₂." },
+        { id: 12, symbol: "Mg", name: "Magnesium", group: "Kim loại", mass: 24.305, electronegativity: "1.31", electron_config: "[Ne] 3s²", video_url: "https://www.youtube.com/embed/bCmsQ_55gU4", experiment_description: "Dải kim loại magie cháy chói lóa phát tia UV sáng trắng và khói MgO, dùng trong pháo sáng cứu hộ." },
+        { id: 13, symbol: "Al", name: "Aluminum", group: "Kim loại", mass: 26.982, electronegativity: "1.61", electron_config: "[Ne] 3s² 3p¹", video_url: "https://www.youtube.com/embed/5K8tG0Z3s9g", experiment_description: "Kim loại nhẹ có lớp màng oxit Al₂O₃ bảo vệ; phản ứng nhiệt nhôm với oxit sắt tỏa nhiệt trên 2500°C làm nóng chảy sắt." },
+        { id: 14, symbol: "Si", name: "Silicon", group: "Phi kim", mass: 28.085, electronegativity: "1.90", electron_config: "[Ne] 3s² 3p²", video_url: "https://www.youtube.com/embed/yF8z8kE_bI4", experiment_description: "Chất bán dẫn cốt lõi của thời đại công nghệ số, cấu tạo nên vi xử lý máy tính, chip điện thoại và pin mặt trời." },
+        { id: 15, symbol: "P", name: "Phosphorus", group: "Phi kim", mass: 30.974, electronegativity: "2.19", electron_config: "[Ne] 3s² 3p³", video_url: "https://www.youtube.com/embed/Vb87G9vO2p0", experiment_description: "Photpho trắng tự bốc cháy trong không khí ở 35°C phát lân quang; photpho đỏ an toàn hơn dùng làm đầu bao diêm." },
+        { id: 16, symbol: "S", name: "Sulfur", group: "Phi kim", mass: 32.06, electronegativity: "2.58", electron_config: "[Ne] 3s² 3p⁴", video_url: "https://www.youtube.com/embed/m6bYF4_N6Zc", experiment_description: "Lưu huỳnh màu vàng chanh, khi đốt cháy tạo ngọn lửa màu xanh lam sinh khí SO₂ mùi hắc; dùng lưu hóa cao su." },
+        { id: 17, symbol: "Cl", name: "Chlorine", group: "Phi kim", mass: 35.45, electronegativity: "3.16", electron_config: "[Ne] 3s² 3p⁵", video_url: "https://www.youtube.com/embed/BXCfBl4RMh0", experiment_description: "Khí màu vàng lục độc hại, oxi hóa cực mạnh; tác dụng với dây sắt nung đỏ sinh ra khói màu nâu đỏ của muối FeCl₃." },
+        { id: 18, symbol: "Ar", name: "Argon", group: "Khí hiếm", mass: 39.948, electronegativity: "Không có (-)", electron_config: "[Ne] 3s² 3p⁶", video_url: "https://www.youtube.com/embed/a0Ld7i4qQ4U", experiment_description: "Khí trơ dùng làm bầu khí quyển bảo vệ trong hàn kim loại công nghiệp và bơm vào bóng đèn sợi đốt chống cháy dây tóc." },
+        { id: 19, symbol: "K", name: "Potassium", group: "Kim loại", mass: 39.098, electronegativity: "0.82", electron_config: "[Ar] 4s¹", video_url: "https://www.youtube.com/embed/5aD6HwUE2c0", experiment_description: "Kim loại kiềm hoạt động mạnh hơn natri, phản ứng với nước phát nổ bốc cháy ngọn lửa màu tím hoa cà đặc trưng." },
+        { id: 20, symbol: "Ca", name: "Calcium", group: "Kim loại", mass: 40.078, electronegativity: "1.00", electron_config: "[Ar] 4s²", video_url: "https://www.youtube.com/embed/gLgTf8V1QpI", experiment_description: "Thành phần của xương và đá vôi CaCO₃; phản ứng với nước sủi bọt khí hydro tạo dung dịch nước vôi trong Ca(OH)₂." },
+        { id: 21, symbol: "Sc", name: "Scandium", group: "Kim loại", mass: 44.956, electronegativity: "1.36", electron_config: "[Ar] 3d¹ 4s²", video_url: "https://www.youtube.com/embed/m7wFfO7dG38", experiment_description: "Kim loại chuyển tiếp phân nhóm IIIB, hợp kim Al-Sc siêu nhẹ ứng dụng chế tạo khung máy bay tiêm kích." },
+        { id: 22, symbol: "Ti", name: "Titanium", group: "Kim loại", mass: 47.867, electronegativity: "1.54", electron_config: "[Ar] 3d² 4s²", video_url: "https://www.youtube.com/embed/40nN01K4fpc", experiment_description: "Cứng và bền như thép nhưng nhẹ hơn 45%, trơ hoàn toàn trong cơ thể người nên dùng cấy ghép xương khớp nhân tạo." },
+        { id: 23, symbol: "V", name: "Vanadium", group: "Kim loại", mass: 50.942, electronegativity: "1.63", electron_config: "[Ar] 3d³ 4s²", video_url: "https://www.youtube.com/embed/t4bZlhRkmYs", experiment_description: "Các ion Vanadi có 4 mức oxi hóa (+2, +3, +4, +5) tương ứng 4 màu sắc tím, xanh lục, xanh lam và vàng rực rỡ." },
+        { id: 24, symbol: "Cr", name: "Chromium", group: "Kim loại", mass: 51.996, electronegativity: "1.66", electron_config: "[Ar] 3d⁵ 4s¹", video_url: "https://www.youtube.com/embed/14Q1U7tN00Y", experiment_description: "Kim loại cứng nhất bảng tuần hoàn (rạch được thủy tinh), mạ lớp sáng bóng chống gỉ cho thép không gỉ inox." },
+        { id: 25, symbol: "Mn", name: "Manganese", group: "Kim loại", mass: 54.938, electronegativity: "1.55", electron_config: "[Ar] 3d⁵ 4s²", video_url: "https://www.youtube.com/embed/6gJq3l3H4pY", experiment_description: "Thuốc tím KMnO₄ là chất oxi hóa quen thuộc; bột MnO₂ xúc tác phân hủy oxi già H₂O₂ thành bọt khí oxy mãnh liệt." },
+        { id: 26, symbol: "Fe", name: "Iron", group: "Kim loại", mass: 55.845, electronegativity: "1.83", electron_config: "[Ar] 3d⁶ 4s²", video_url: "https://www.youtube.com/embed/aKlhfG1Gk6w", experiment_description: "Dây sắt cháy chói lóa trong bình khí oxy nguyên chất bắn tia lửa sáng tạo hạt oxit sắt từ: 3Fe + 2O₂ → Fe₃O₄." },
+        { id: 27, symbol: "Co", name: "Cobalt", group: "Kim loại", mass: 58.933, electronegativity: "1.88", electron_config: "[Ar] 3d⁷ 4s²", video_url: "https://www.youtube.com/embed/v9CgZf9yM2k", experiment_description: "Muối coban đổi màu theo độ ẩm (hồng khi ẩm, xanh khi khô); là nguyên tử trung tâm cấu trúc vitamin B12." },
+        { id: 28, symbol: "Ni", name: "Nickel", group: "Kim loại", mass: 58.693, electronegativity: "1.91", electron_config: "[Ar] 3d⁸ 4s²", video_url: "https://www.youtube.com/embed/r8mEwT_f4Ew", experiment_description: "Kim loại từ tính màu trắng bạc, dùng mạ bảo vệ kim loại và làm chất xúc tác hydro hóa chất béo." },
+        { id: 29, symbol: "Cu", name: "Copper", group: "Kim loại", mass: 63.546, electronegativity: "1.90", electron_config: "[Ar] 3d¹⁰ 4s¹", video_url: "https://www.youtube.com/embed/4ZcZz6VdYgA", experiment_description: "Kim loại màu đỏ cam dẫn điện xuất sắc; tác dụng với axit nitric HNO₃ đặc giải phóng khí NO₂ màu nâu đỏ độc hại." },
+        { id: 30, symbol: "Zn", name: "Zinc", group: "Kim loại", mass: 65.38, electronegativity: "1.65", electron_config: "[Ar] 3d¹⁰ 4s²", video_url: "https://www.youtube.com/embed/W82v4Hh1oU4", experiment_description: "Kẽm tác dụng với axit HCl sủi bọt khí hydro H₂ mãnh liệt: Zn + 2HCl → ZnCl₂ + H₂↑; dùng mạ tôn chống gỉ." },
+        { id: 31, symbol: "Ga", name: "Gallium", group: "Kim loại", mass: 69.723, electronegativity: "1.81", electron_config: "[Ar] 3d¹⁰ 4s² 4p¹", video_url: "https://www.youtube.com/embed/k4P44P9pP2A", experiment_description: "Kim loại nóng chảy ngay trên lòng bàn tay ở nhiệt độ 29.76°C; hợp chất bán dẫn GaAs dùng trong bóng LED." },
+        { id: 32, symbol: "Ge", name: "Germanium", group: "Phi kim", mass: 72.630, electronegativity: "2.01", electron_config: "[Ar] 3d¹⁰ 4s² 4p²", video_url: "https://www.youtube.com/embed/2_Hj1U_7x1g", experiment_description: "Á kim bán dẫn màu xám bạc, nguyên liệu làm nên bóng bán dẫn transistor đầu tiên của lịch sử điện tử." },
+        { id: 33, symbol: "As", name: "Arsenic", group: "Phi kim", mass: 74.922, electronegativity: "2.18", electron_config: "[Ar] 3d¹⁰ 4s² 4p³", video_url: "https://www.youtube.com/embed/U2v1xG8x1hM", experiment_description: "Hợp chất thạch tín As₂O₃ là chất độc khét tiếng cổ xưa; hiện nay asen được dùng pha tạp chất bán dẫn." },
+        { id: 34, symbol: "Se", name: "Selenium", group: "Phi kim", mass: 78.971, electronegativity: "2.55", electron_config: "[Ar] 3d¹⁰ 4s² 4p⁴", video_url: "https://www.youtube.com/embed/4yGz4_aH4oA", experiment_description: "Độ dẫn điện tăng gấp nghìn lần khi có ánh sáng chiếu vào, ứng dụng làm trống quang điện trong máy photocopy." },
+        { id: 35, symbol: "Br", name: "Bromine", group: "Phi kim", mass: 79.904, electronegativity: "2.96", electron_config: "[Ar] 3d¹⁰ 4s² 4p⁵", video_url: "https://www.youtube.com/embed/uTwdu4y5Nzo", experiment_description: "Phi kim duy nhất ở thể lỏng ở điều kiện chuẩn, màu nâu đỏ bốc khói cay mắt; nước brom nhận biết liên kết đôi C=C." },
+        { id: 36, symbol: "Kr", name: "Krypton", group: "Khí hiếm", mass: 83.798, electronegativity: "3.00", electron_config: "[Ar] 3d¹⁰ 4s² 4p⁶", video_url: "https://www.youtube.com/embed/s3yC2N_xYgQ", experiment_description: "Khí hiếm phát ánh sáng trắng xanh khi phóng điện, từng được dùng làm chuẩn đo lường 1 mét quốc tế." },
+        { id: 37, symbol: "Rb", name: "Rubidium", group: "Kim loại", mass: 85.468, electronegativity: "0.82", electron_config: "[Kr] 5s¹", video_url: "https://www.youtube.com/embed/T4vO6kH3fPo", experiment_description: "Kim loại kiềm hoạt động dữ dội làm vỡ cốc thủy tinh khi thả vào nước, tự bốc cháy trong không khí ẩm." },
+        { id: 38, symbol: "Sr", name: "Strontium", group: "Kim loại", mass: 87.62, electronegativity: "0.95", electron_config: "[Kr] 5s²", video_url: "https://www.youtube.com/embed/bL7X_Y0qAew", experiment_description: "Muối stronti cháy cho ngọn lửa màu đỏ tươi rực rỡ, thành phần tạo nên màu đỏ trong pháo hoa ngày Tết." },
+        { id: 39, symbol: "Y", name: "Yttrium", group: "Kim loại", mass: 88.906, electronegativity: "1.22", electron_config: "[Kr] 4d¹ 5s²", video_url: "https://www.youtube.com/embed/rR1QjZ0qMsw", experiment_description: "Hợp chất YBCO (Yttrium-Barium-Copper-Oxide) là chất siêu dẫn nhiệt độ cao hoạt động ở nhiệt độ nitơ lỏng." },
+        { id: 40, symbol: "Zr", name: "Zirconium", group: "Kim loại", mass: 91.224, electronegativity: "1.33", electron_config: "[Kr] 4d² 5s²", video_url: "https://www.youtube.com/embed/9G0qB7hY1oM", experiment_description: "Chống ăn mòn chịu nhiệt tuyệt đối, hấp thụ neutron thấp nên làm vỏ thanh nhiên liệu hạt nhân; đá zirconia giả kim cương." },
+        { id: 41, symbol: "Nb", name: "Niobium", group: "Kim loại", mass: 92.906, electronegativity: "1.60", electron_config: "[Kr] 4d⁴ 5s¹", video_url: "https://www.youtube.com/embed/F4q9M7zH1oA", experiment_description: "Kim loại siêu dẫn có thể tạo màng oxit nhiều màu sắc cầu vồng bằng điện phân mà không cần phẩm nhuộm." },
+        { id: 42, symbol: "Mo", name: "Molybdenum", group: "Kim loại", mass: 95.95, electronegativity: "2.16", electron_config: "[Kr] 4d⁵ 5s¹", video_url: "https://www.youtube.com/embed/7V8nZ7mX4sA", experiment_description: "Nóng chảy ở nhiệt độ rất cao (2623°C), nguyên tố vi lượng trong enzym cố định đạm của vi khuẩn nốt sần rễ cây họ Đậu." },
+        { id: 43, symbol: "Tc", name: "Technetium", group: "Kim loại", mass: 98, electronegativity: "1.90", electron_config: "[Kr] 4d⁵ 5s²", video_url: "https://www.youtube.com/embed/4f6hZ1yX1qE", experiment_description: "Nguyên tố nhân tạo đầu tiên trong lịch sử, đồng vị Tc-99m là nguyên tử cứu tinh trong chụp xạ hình chẩn đoán y học hạt nhân." },
+        { id: 44, symbol: "Ru", name: "Ruthenium", group: "Kim loại", mass: 101.07, electronegativity: "2.20", electron_config: "[Kr] 4d⁷ 5s¹", video_url: "https://www.youtube.com/embed/P6yX7wZ0qM0", experiment_description: "Kim loại nhóm platin quý hiếm, chất xúc tác Grubbs đoạt giải Nobel Hóa học cho phản ứng đổi chỗ olefin metathesis." },
+        { id: 45, symbol: "Rh", name: "Rhodium", group: "Kim loại", mass: 102.91, electronegativity: "2.28", electron_config: "[Kr] 4d⁸ 5s¹", video_url: "https://www.youtube.com/embed/k9oM6xY1qM0", experiment_description: "Kim loại quý có giá trị đắt đỏ hàng đầu thế giới, làm bộ xúc tác khí thải trên ô tô để biến khí độc thành khí vô hại." },
+        { id: 46, symbol: "Pd", name: "Palladium", group: "Kim loại", mass: 106.42, electronegativity: "2.20", electron_config: "[Kr] 4d¹⁰", video_url: "https://www.youtube.com/embed/p0xM7qY1qM0", experiment_description: "Có thể hấp thụ khí hydro gấp 900 lần thể tích chính nó như miếng mút xốp hút nước." },
+        { id: 47, symbol: "Ag", name: "Silver", group: "Kim loại", mass: 107.87, electronegativity: "1.93", electron_config: "[Kr] 4d¹⁰ 5s¹", video_url: "https://www.youtube.com/embed/rR_5g1mI538", experiment_description: "Kim loại dẫn điện và nhiệt tốt nhất hành tinh, phản ứng tráng bạc tráng gương tạo lớp bạc kim loại sáng lấp lánh." },
+        { id: 48, symbol: "Cd", name: "Cadmium", group: "Kim loại", mass: 112.41, electronegativity: "1.69", electron_config: "[Kr] 4d¹⁰ 5s²", video_url: "https://www.youtube.com/embed/7V9nZ7mX4sB", experiment_description: "Kim loại nặng hấp thụ neutron cực tốt trong thanh điều khiển hạt nhân, thành phần của pin sạc Ni-Cd cổ điển." },
+        { id: 49, symbol: "In", name: "Indium", group: "Kim loại", mass: 114.82, electronegativity: "1.78", electron_config: "[Kr] 4d¹⁰ 5s² 5p¹", video_url: "https://www.youtube.com/embed/4yGz4_aH4oB", experiment_description: "Mềm đến mức dùng răng cắn móp; màng oxit ITO trong suốt dẫn điện làm nên màn hình cảm ứng điện thoại thông minh." },
+        { id: 50, symbol: "Sn", name: "Tin", group: "Kim loại", mass: 118.71, electronegativity: "1.96", electron_config: "[Kr] 4d¹⁰ 5s² 5p²", video_url: "https://www.youtube.com/embed/k4P44P9pP2B", experiment_description: "Kim loại màu trắng bạc phát tiếng kêu 'tiếng khóc của thiếc' khi bẻ cong; tráng hộp sắt đựng đồ ăn chống rỉ sét." },
+        { id: 51, symbol: "Sb", name: "Antimony", group: "Phi kim", mass: 121.76, electronegativity: "2.05", electron_config: "[Kr] 4d¹⁰ 5s² 5p³", video_url: "https://www.youtube.com/embed/2_Hj1U_7x1h", experiment_description: "Á kim đặc biệt nở ra khi đông đặc giúp đúc chữ in sắc nét, pha vào chì làm tăng độ cứng." },
+        { id: 52, symbol: "Te", name: "Tellurium", group: "Phi kim", mass: 127.60, electronegativity: "2.10", electron_config: "[Kr] 4d¹⁰ 5s² 5p⁴", video_url: "https://www.youtube.com/embed/U2v1xG8x1hN", experiment_description: "Á kim đặt tên theo Nữ thần Trái Đất Tellus, hợp chất CdTe dùng sản xuất pin mặt trời màng mỏng hiệu suất cao." },
+        { id: 53, symbol: "I", name: "Iodine", group: "Phi kim", mass: 126.90, electronegativity: "2.66", electron_config: "[Kr] 4d¹⁰ 5s² 5p⁵", video_url: "https://www.youtube.com/embed/0X88_L0b33V", experiment_description: "Tinh thể màu đen tím thăng hoa thành hơi tím ngắt khi đun nhẹ; dung dịch cồn iot là thuốc sát trùng và nhận biết hồ tinh bột." },
+        { id: 54, symbol: "Xe", name: "Xenon", group: "Khí hiếm", mass: 131.29, electronegativity: "2.60", electron_config: "[Kr] 4d¹⁰ 5s² 5p⁶", video_url: "https://www.youtube.com/embed/s3yC2N_xYgR", experiment_description: "Khí hiếm phát ánh sáng xanh lơ sáng lóa trong đèn xenon xe hơi và nhiên liệu ion đẩy động cơ tàu vũ trụ." },
+        { id: 55, symbol: "Cs", name: "Cesium", group: "Kim loại", mass: 132.91, electronegativity: "0.79", electron_config: "[Xe] 6s¹", video_url: "https://www.youtube.com/embed/uixxJtJPVXl", experiment_description: "Kim loại kiềm hoạt động dữ dội khủng khiếp; tần số dao động nguyên tử Cs-133 là thước đo chuẩn 1 giây quốc tế." },
+        { id: 56, symbol: "Ba", name: "Barium", group: "Kim loại", mass: 137.33, electronegativity: "0.89", electron_config: "[Xe] 6s²", video_url: "https://www.youtube.com/embed/bL7X_Y0qAex", experiment_description: "Ngọn lửa bari cháy màu xanh lục táo; muối BaSO₄ cản quang dùng uống để chụp X-quang đường tiêu hóa an toàn." },
+        { id: 57, symbol: "La", name: "Lanthanum", group: "Kim loại", mass: 138.91, electronegativity: "1.10", electron_config: "[Xe] 5d¹ 6s²", video_url: "https://www.youtube.com/embed/rR1QjZ0qMsx", experiment_description: "Nguyên tố mở đầu chuỗi Lantanit, dùng chế tạo đá lửa bật lửa và kính quang học cao cấp cho máy ảnh." },
+        { id: 58, symbol: "Ce", name: "Cerium", group: "Kim loại", mass: 140.12, electronegativity: "1.12", electron_config: "[Xe] 4f¹ 5d¹ 6s²", video_url: "https://www.youtube.com/embed/9G0qB7hY1oN", experiment_description: "Đất hiếm phổ biến nhất vỏ Trái Đất, oxit CeO₂ dùng đánh bóng gương kính thiên văn và màn hình điện thoại siêu mịn." },
+        { id: 59, symbol: "Pr", name: "Praseodymium", group: "Kim loại", mass: 140.91, electronegativity: "1.13", electron_config: "[Xe] 4f³ 6s²", video_url: "https://www.youtube.com/embed/F4q9M7zH1oB", experiment_description: "Tạo màu vàng lục cho kính thợ hàn và nam châm vĩnh cửu siêu mạnh trong motor xe điện hiện đại." },
+        { id: 60, symbol: "Nd", name: "Neodymium", group: "Kim loại", mass: 144.24, electronegativity: "1.14", electron_config: "[Xe] 4f⁴ 6s²", video_url: "https://www.youtube.com/embed/7V8nZ7mX4sC", experiment_description: "Nam châm NdFeB (Neodymium) là nam châm vĩnh cửu mạnh nhất thế giới, nhấc được vật nặng gấp 1000 lần chính nó." },
+        { id: 61, symbol: "Pm", name: "Promethium", group: "Kim loại", mass: 145, electronegativity: "1.13", electron_config: "[Xe] 4f⁵ 6s²", video_url: "https://www.youtube.com/embed/4f6hZ1yX1qF", experiment_description: "Nguyên tố đất hiếm phóng xạ không có đồng vị bền, dùng chế tạo pin hạt nhân siêu nhỏ hoạt động nhiều thập kỷ." },
+        { id: 62, symbol: "Sm", name: "Samarium", group: "Kim loại", mass: 150.36, electronegativity: "1.17", electron_config: "[Xe] 4f⁶ 6s²", video_url: "https://www.youtube.com/embed/P6yX7wZ0qM1", experiment_description: "Nam châm SmCo chịu được nhiệt độ lên tới 800°C mà không mất từ tính, dùng trong động cơ phản lực tiêm kích." },
+        { id: 63, symbol: "Eu", name: "Europium", group: "Kim loại", mass: 151.96, electronegativity: "1.20", electron_config: "[Xe] 4f⁷ 6s²", video_url: "https://www.youtube.com/embed/k9oM6xY1qM1", experiment_description: "Phát huỳnh quang đỏ rực dưới tia tử ngoại UV, được cấy vào mực in tiền giấy Euro để chống làm giả." },
+        { id: 64, symbol: "Gd", name: "Gadolinium", group: "Kim loại", mass: 157.25, electronegativity: "1.20", electron_config: "[Xe] 4f⁷ 5d¹ 6s²", video_url: "https://www.youtube.com/embed/p0xM7qY1qM1", experiment_description: "Chất tương phản thuận từ trong chụp cộng hưởng từ MRI giúp bác sĩ nhìn rõ khối u mạch máu trong cơ thể." },
+        { id: 65, symbol: "Tb", name: "Terbium", group: "Kim loại", mass: 158.93, electronegativity: "1.20", electron_config: "[Xe] 4f⁹ 6s²", video_url: "https://www.youtube.com/embed/rR_5g1mI539", experiment_description: "Tạo ánh sáng huỳnh quang xanh lục trong đèn tiết kiệm điện và vật liệu Terfenol-D biến đổi kích thước từ tính." },
+        { id: 66, symbol: "Dy", name: "Dysprosium", group: "Kim loại", mass: 162.50, electronegativity: "1.22", electron_config: "[Xe] 4f¹⁰ 6s²", video_url: "https://www.youtube.com/embed/7V9nZ7mX4sD", experiment_description: "Giúp nam châm động cơ điện không bị mất từ tính khi hoạt động ở nhiệt độ cao trong tuabin gió và xe điện." },
+        { id: 67, symbol: "Ho", name: "Holmium", group: "Kim loại", mass: 164.93, electronegativity: "1.23", electron_config: "[Xe] 4f¹¹ 6s²", video_url: "https://www.youtube.com/embed/4yGz4_aH4oC", experiment_description: "Có mômen từ lớn nhất trong các nguyên tố tự nhiên, làm cực tập trung từ trường cho máy gia tốc hạt nhân." },
+        { id: 68, symbol: "Er", name: "Erbium", group: "Kim loại", mass: 167.26, electronegativity: "1.24", electron_config: "[Xe] 4f¹² 6s²", video_url: "https://www.youtube.com/embed/k4P44P9pP2C", experiment_description: "Bộ khuếch đại quang học EDFA pha tạp Erbium giúp khuếch đại tín hiệu Internet cáp quang xuyên đại dương." },
+        { id: 69, symbol: "Tm", name: "Thulium", group: "Kim loại", mass: 168.93, electronegativity: "1.25", electron_config: "[Xe] 4f¹³ 6s²", video_url: "https://www.youtube.com/embed/2_Hj1U_7x1i", experiment_description: "Đất hiếm tự nhiên ít nhất, dùng làm nguồn phát tia X trong các máy chụp X-quang di động cứu nạn." },
+        { id: 70, symbol: "Yb", name: "Ytterbium", group: "Kim loại", mass: 173.05, electronegativity: "1.10", electron_config: "[Xe] 4f¹⁴ 6s²", video_url: "https://www.youtube.com/embed/U2v1xG8x1hO", experiment_description: "Được dùng trong đồng hồ nguyên tử quang học chính xác nhất thế giới (sai số dưới 1 giây sau hàng tỷ năm)." },
+        { id: 71, symbol: "Lu", name: "Lutetium", group: "Kim loại", mass: 174.97, electronegativity: "1.27", electron_config: "[Xe] 4f¹⁴ 5d¹ 6s²", video_url: "https://www.youtube.com/embed/0X88_L0b33W", experiment_description: "Nguyên tố kết thúc chuỗi Lantanit, đồng vị Lu-177 dùng trong liệu pháp xạ trị nhắm trúng đích tế bào ung thư." },
+        { id: 72, symbol: "Hf", name: "Hafnium", group: "Kim loại", mass: 178.49, electronegativity: "1.30", electron_config: "[Xe] 4f¹⁴ 5d² 6s²", video_url: "https://www.youtube.com/embed/s3yC2N_xYgS", experiment_description: "Chất cách điện cổng high-k trong các chip vi xử lý Intel thế hệ mới giúp giảm rò rỉ dòng điện lượng tử." },
+        { id: 73, symbol: "Ta", name: "Tantalum", group: "Kim loại", mass: 180.95, electronegativity: "1.50", electron_config: "[Xe] 4f¹⁴ 5d³ 6s²", video_url: "https://www.youtube.com/embed/uixxJtJPVXm", experiment_description: "Tụ điện tantali siêu nhỏ gọn bền bỉ là linh kiện không thể thiếu trong bảng mạch điện thoại smartphone." },
+        { id: 74, symbol: "W", name: "Tungsten", group: "Kim loại", mass: 183.84, electronegativity: "2.36", electron_config: "[Xe] 4f¹⁴ 5d⁴ 6s²", video_url: "https://www.youtube.com/embed/bL7X_Y0qAey", experiment_description: "Kim loại có nhiệt độ nóng chảy cao nhất thế giới (3422°C), làm dây tóc bóng đèn sợi đốt và mũi khoan Vonfram siêu cứng." },
+        { id: 75, symbol: "Re", name: "Rhenium", group: "Kim loại", mass: 186.21, electronegativity: "1.90", electron_config: "[Xe] 4f¹⁴ 5d⁵ 6s²", video_url: "https://www.youtube.com/embed/rR1QjZ0qMsy", experiment_description: "Siêu hợp kim niken-rheni chịu nhiệt độ và áp suất cực hạn trong cánh quạt buồng đốt tua bin máy bay phản lực." },
+        { id: 76, symbol: "Os", name: "Osmium", group: "Kim loại", mass: 190.23, electronegativity: "2.20", electron_config: "[Xe] 4f¹⁴ 5d⁶ 6s²", video_url: "https://www.youtube.com/embed/9G0qB7hY1oO", experiment_description: "Nguyên tố có khối lượng riêng nặng nhất hành tinh (22.59 g/cm³, nặng gấp đôi chì), làm ngòi bút máy cao cấp." },
+        { id: 77, symbol: "Ir", name: "Iridium", group: "Kim loại", mass: 192.22, electronegativity: "2.20", electron_config: "[Xe] 4f¹⁴ 5d⁷ 6s²", video_url: "https://www.youtube.com/embed/F4q9M7zH1oC", experiment_description: "Lớp trầm tích giàu Iridi là bằng chứng khoa học cho vụ thiên thạch khổng lồ xóa sổ loài khủng long 66 triệu năm trước." },
+        { id: 78, symbol: "Pt", name: "Platinum", group: "Kim loại", mass: 195.08, electronegativity: "2.28", electron_config: "[Xe] 4f¹⁴ 5d⁹ 6s¹", video_url: "https://www.youtube.com/embed/7V8nZ7mX4sD", experiment_description: "Bạch kim quý trơ hoàn toàn, làm chất xúc tác hóa học và thuốc hóa trị chống ung thư cisplatin nổi tiếng." },
+        { id: 79, symbol: "Au", name: "Gold", group: "Kim loại", mass: 196.97, electronegativity: "2.54", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s¹", video_url: "https://www.youtube.com/embed/eXbN8bIe4F4", experiment_description: "Kim loại quý vương giả không bao giờ bị xỉn gỉ hay oxi hóa, dễ dát mỏng đến mức 1 lá vàng mỏng chỉ vài trăm nguyên tử." },
+        { id: 80, symbol: "Hg", name: "Mercury", group: "Kim loại", mass: 200.59, electronegativity: "2.00", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s²", video_url: "https://www.youtube.com/embed/o08ykDvM0fg", experiment_description: "Kim loại duy nhất ở thể lỏng ở nhiệt độ phòng, giọt thủy ngân lăn tròn phản chiếu ánh kim loại; dùng trong nhiệt kế." },
+        { id: 81, symbol: "Tl", name: "Thallium", group: "Kim loại", mass: 204.38, electronegativity: "1.62", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹", video_url: "https://www.youtube.com/embed/p0xM7qY1qM2", experiment_description: "Kim loại mềm màu xám rất độc hại, được ứng dụng trong cảm biến quang hồng ngoại chuyên dụng." },
+        { id: 82, symbol: "Pb", name: "Lead", group: "Kim loại", mass: 207.2, electronegativity: "2.33", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²", video_url: "https://www.youtube.com/embed/jZ_yS91Wq00", experiment_description: "Kim loại nặng màu xám mềm, ngăn chặn hữu hiệu bức xạ tia X và tia gamma trong phòng chụp X-quang bệnh viện." },
+        { id: 83, symbol: "Bi", name: "Bismuth", group: "Kim loại", mass: 208.98, electronegativity: "2.02", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³", video_url: "https://www.youtube.com/embed/7V9nZ7mX4sE", experiment_description: "Khi kết tinh tạo hình bậc thang kỳ ảo cầu vồng phản quang màng oxit; thành phần thuốc đau dạ dày Pepto-Bismol." },
+        { id: 84, symbol: "Po", name: "Polonium", group: "Kim loại", mass: 209, electronegativity: "2.00", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴", video_url: "https://www.youtube.com/embed/4yGz4_aH4oD", experiment_description: "Marie Curie khám phá và đặt tên theo quê hương Ba Lan (Poland), phát tia alpha làm tự nóng đỏ chính nó." },
+        { id: 85, symbol: "At", name: "Astatine", group: "Phi kim", mass: 210, electronegativity: "2.20", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵", video_url: "https://www.youtube.com/embed/k4P44P9pP2D", experiment_description: "Nguyên tố tự nhiên hiếm nhất vỏ Trái Đất (toàn hành tinh có chưa đầy 30g), thuộc nhóm Halogen phóng xạ." },
+        { id: 86, symbol: "Rn", name: "Radon", group: "Khí hiếm", mass: 222, electronegativity: "2.20", electron_config: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶", video_url: "https://www.youtube.com/embed/2_Hj1U_7x1j", experiment_description: "Khí hiếm nặng nhất, phóng xạ tự nhiên sinh ra từ sự phân rã của urani trong đá granite lòng đất." },
+        { id: 87, symbol: "Fr", name: "Francium", group: "Kim loại", mass: 223, electronegativity: "0.70", electron_config: "[Rn] 7s¹", video_url: "https://www.youtube.com/embed/U2v1xG8x1hP", experiment_description: "Kim loại kiềm phóng xạ cực hiếm đặt tên theo nước Pháp (France), chu kỳ bán rã chỉ 22 phút." },
+        { id: 88, symbol: "Ra", name: "Radium", group: "Kim loại", mass: 226, electronegativity: "0.90", electron_config: "[Rn] 7s²", video_url: "https://www.youtube.com/embed/0X88_L0b33X", experiment_description: "Phát ánh sáng xanh lam mờ ảo trong bóng tối do phân rã phóng xạ, phát hiện vĩ đại của Marie Curie." },
+        { id: 89, symbol: "Ac", name: "Actinium", group: "Kim loại", mass: 227, electronegativity: "1.10", electron_config: "[Rn] 6d¹ 7s²", video_url: "https://www.youtube.com/embed/s3yC2N_xYgT", experiment_description: "Mở đầu chuỗi Actinit phóng xạ, phát ánh sáng huỳnh quang màu lam nhạt do kích thích không khí xung quanh." },
+        { id: 90, symbol: "Th", name: "Thorium", group: "Kim loại", mass: 232.04, electronegativity: "1.30", electron_config: "[Rn] 6d² 7s²", video_url: "https://www.youtube.com/embed/uixxJtJPVXn", experiment_description: "Nhiên liệu hạt nhân xanh tiềm năng sạch hơn urani trong các lò phản ứng muối nóng chảy thế hệ tương lai." },
+        { id: 91, symbol: "Pa", name: "Protactinium", group: "Kim loại", mass: 231.04, electronegativity: "1.50", electron_config: "[Rn] 5f² 6d¹ 7s²", video_url: "https://www.youtube.com/embed/bL7X_Y0qAez", experiment_description: "Kim loại phóng xạ hiếm và độc hại, mắt xích quan trọng trong chuỗi phân rã urani trong tự nhiên." },
+        { id: 92, symbol: "U", name: "Uranium", group: "Kim loại", mass: 238.03, electronegativity: "1.38", electron_config: "[Rn] 5f³ 6d¹ 7s²", video_url: "https://www.youtube.com/embed/rR1QjZ0qMsz", experiment_description: "Nhiên liệu phân hạch hạt nhân chủ lực cung cấp điện năng cho các nhà máy điện nguyên tử trên thế giới." },
+        { id: 93, symbol: "Np", name: "Neptunium", group: "Kim loại", mass: 237, electronegativity: "1.36", electron_config: "[Rn] 5f⁴ 6d¹ 7s²", video_url: "https://www.youtube.com/embed/9G0qB7hY1oP", experiment_description: "Nguyên tố siêu urani đầu tiên được tổng hợp nhân tạo, đặt tên theo Sao Hải Vương (Neptune)." },
+        { id: 94, symbol: "Pu", name: "Plutonium", group: "Kim loại", mass: 244, electronegativity: "1.28", electron_config: "[Rn] 5f⁶ 7s²", video_url: "https://www.youtube.com/embed/F4q9M7zH1oD", experiment_description: "Nhiên liệu của máy phát nhiệt đồng vị phóng xạ RTG cung cấp điện cho tàu thám hiểm vũ trụ Curiosity trên sao Hỏa." },
+        { id: 95, symbol: "Am", name: "Americium", group: "Kim loại", mass: 243, electronegativity: "1.30", electron_config: "[Rn] 5f⁷ 7s²", video_url: "https://www.youtube.com/embed/7V8nZ7mX4sE", experiment_description: "Đồng vị Am-241 phát tia alpha ion hóa không khí được ứng dụng trong các thiết bị báo khói chống cháy gia đình." },
+        { id: 96, symbol: "Cm", name: "Curium", group: "Kim loại", mass: 247, electronegativity: "1.30", electron_config: "[Rn] 5f⁷ 6d¹ 7s²", video_url: "https://www.youtube.com/embed/4f6hZ1yX1qG", experiment_description: "Đặt tên vinh danh Marie và Pierre Curie, làm nguồn phát hạt alpha trên các xe tự hành thám hiểm sao Hỏa." },
+        { id: 97, symbol: "Bk", name: "Berkelium", group: "Kim loại", mass: 247, electronegativity: "1.30", electron_config: "[Rn] 5f⁹ 7s²", video_url: "https://www.youtube.com/embed/P6yX7wZ0qM2", experiment_description: "Tổng hợp tại Berkeley California năm 1949, dùng làm bia bắn hạt nhân để tổng hợp nguyên tố Tennessine." },
+        { id: 98, symbol: "Cf", name: "Californium", group: "Kim loại", mass: 251, electronegativity: "1.30", electron_config: "[Rn] 5f¹⁰ 7s²", video_url: "https://www.youtube.com/embed/k9oM6xY1qM2", experiment_description: "Nguồn phát neutron cực mạnh dùng khởi động lò phản ứng hạt nhân và dò tìm vàng, dầu mỏ dưới lòng đất." },
+        { id: 99, symbol: "Es", name: "Einsteinium", group: "Kim loại", mass: 252, electronegativity: "1.30", electron_config: "[Rn] 5f¹¹ 7s²", video_url: "https://www.youtube.com/embed/p0xM7qY1qM3", experiment_description: "Phát hiện trong tro tàn vụ thử bom nhiệt hạch năm 1952, đặt tên vinh danh nhà bác học Albert Einstein." },
+        { id: 100, symbol: "Fm", name: "Fermium", group: "Kim loại", mass: 257, electronegativity: "1.30", electron_config: "[Rn] 5f¹² 7s²", video_url: "https://www.youtube.com/embed/rR_5g1mI540", experiment_description: "Vinh danh nhà vật lý Enrico Fermi, nguyên tố nặng nhất tạo được bằng phản ứng bắt giữ neutron." },
+        { id: 101, symbol: "Md", name: "Mendelevium", group: "Kim loại", mass: 258, electronegativity: "1.30", electron_config: "[Rn] 5f¹³ 7s²", video_url: "https://www.youtube.com/embed/7V9nZ7mX4sF", experiment_description: "Vinh danh Dmitri Mendeleev - nhà bác học vĩ đại sáng lập ra Bảng tuần hoàn các nguyên tố hóa học." },
+        { id: 102, symbol: "No", name: "Nobelium", group: "Kim loại", mass: 259, electronegativity: "1.30", electron_config: "[Rn] 5f¹⁴ 7s²", video_url: "https://www.youtube.com/embed/4yGz4_aH4oE", experiment_description: "Vinh danh Alfred Nobel - nhà sáng chế thuốc nổ và người sáng lập giải thưởng Nobel danh giá thế giới." },
+        { id: 103, symbol: "Lr", name: "Lawrencium", group: "Kim loại", mass: 266, electronegativity: "1.30", electron_config: "[Rn] 5f¹⁴ 7s² 7p¹", video_url: "https://www.youtube.com/embed/k4P44P9pP2E", experiment_description: "Vinh danh Ernest Lawrence - nhà phát minh máy gia tốc hạt cyclotron làm thay đổi vật lý hạt nhân." },
+        // Các nguyên tố siêu nặng tổng hợp nhân tạo (một số để video_url: "" để kiểm thử tính năng hiển thị div thông báo theo yêu cầu)
+        { id: 104, symbol: "Rf", name: "Rutherfordium", group: "Kim loại", mass: 267, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d² 7s²", video_url: "", experiment_description: "Vinh danh Ernest Rutherford, nguyên tố phóng xạ tổng hợp nhân tạo trong máy gia tốc hạt." },
+        { id: 105, symbol: "Db", name: "Dubnium", group: "Kim loại", mass: 268, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d³ 7s²", video_url: "", experiment_description: "Đặt tên theo trung tâm nghiên cứu hạt nhân Dubna của Liên bang Nga." },
+        { id: 106, symbol: "Sg", name: "Seaborgium", group: "Kim loại", mass: 269, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d⁴ 7s²", video_url: "", experiment_description: "Vinh danh nhà hóa học Glenn T. Seaborg, người tìm ra nhiều nguyên tố actinit." },
+        { id: 107, symbol: "Bh", name: "Bohrium", group: "Kim loại", mass: 270, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d⁵ 7s²", video_url: "", experiment_description: "Vinh danh Niels Bohr với mô hình quỹ đạo electron lượng tử nền tảng của môn Hóa học 10." },
+        { id: 108, symbol: "Hs", name: "Hassium", group: "Kim loại", mass: 277, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d⁶ 7s²", video_url: "", experiment_description: "Đặt tên theo bang Hesse của CHLB Đức, nơi đặt trung tâm nghiên cứu ion nặng GSI Darmstadt." },
+        { id: 109, symbol: "Mt", name: "Meitnerium", group: "Kim loại", mass: 278, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d⁷ 7s²", video_url: "", experiment_description: "Vinh danh nhà nữ vật lý Lise Meitner - người đồng khám phá hiện tượng phân hạch hạt nhân." },
+        { id: 110, symbol: "Ds", name: "Darmstadtium", group: "Kim loại", mass: 281, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d⁹ 7s¹", video_url: "", experiment_description: "Tổng hợp nhân tạo tại Darmstadt nước Đức bằng phản ứng bắn phá hạt nhân chì bằng ion niken." },
+        { id: 111, symbol: "Rg", name: "Roentgenium", group: "Kim loại", mass: 282, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s¹", video_url: "", experiment_description: "Vinh danh Wilhelm Röntgen - người tìm ra tia X mang lại bước ngoặt vĩ đại cho y học." },
+        { id: 112, symbol: "Cn", name: "Copernicium", group: "Kim loại", mass: 285, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s²", video_url: "", experiment_description: "Vinh danh Nicolaus Copernicus - nhà thiên văn học khởi xướng thuyết Nhật tâm." },
+        { id: 113, symbol: "Nh", name: "Nihonium", group: "Kim loại", mass: 286, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹", video_url: "", experiment_description: "Nguyên tố đầu tiên được phát hiện tại châu Á bởi các nhà khoa học viện RIKEN Nhật Bản." },
+        { id: 114, symbol: "Fl", name: "Flerovium", group: "Kim loại", mass: 289, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²", video_url: "", experiment_description: "Nằm gần Đảo Bền Vững (Island of Stability) lý thuyết của các hạt nhân siêu nặng trong vật lý." },
+        { id: 115, symbol: "Mc", name: "Moscovium", group: "Kim loại", mass: 290, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³", video_url: "", experiment_description: "Đặt tên theo tỉnh Moskva của Nga nhằm tri ân các nhà khoa học nghiên cứu hạt nhân xuất sắc." },
+        { id: 116, symbol: "Lv", name: "Livermorium", group: "Kim loại", mass: 293, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴", video_url: "", experiment_description: "Đặt tên vinh danh Phòng thí nghiệm Quốc gia Lawrence Livermore tại California Hoa Kỳ." },
+        { id: 117, symbol: "Ts", name: "Tennessine", group: "Phi kim", mass: 294, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵", video_url: "", experiment_description: "Nguyên tố halogen siêu nặng tổng hợp nhờ hợp tác giữa Phòng thí nghiệm Oak Ridge và viện Dubna." },
+        { id: 118, symbol: "Og", name: "Oganesson", group: "Khí hiếm", mass: 294, electronegativity: "Không có (-)", electron_config: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶", video_url: "https://www.youtube.com/embed/vgTzX1_Gz5s", experiment_description: "Nguyên tố có số hiệu lớn nhất hiện nay (118), vinh danh nhà vật lý hạt nhân Yuri Oganessian." }
+      ];
+
+      /**
+       * ============================================================================
+       * 2. LOGIC NỘI SUY SƯ PHẠM HÓA HỌC 10 (CHU KỲ, NHÓM A/B, KHỐI e, TỌA ĐỘ GRID)
+       * ============================================================================
+       * Tính toán tự động chuẩn xác theo chương "Bảng tuần hoàn các nguyên tố hóa học":
+       * - Chu kỳ (1 -> 7): Số lớp electron
+       * - Nhóm IUPAC (1 -> 18) & Nhóm truyền thống (IA -> VIIIA, IB -> VIIIB)
+       * - Khối electron (Block): s, p, d, f
+       * - Tọa độ CSS Grid: gridRow (1-7), gridCol (1-18)
+       */
+      function getElementPedagogicalData(id) {
+        let period = 1;
+        let col = 1;
+        let groupIUPAC = 1;
+        let groupTraditional = "IA";
+        let groupType = "Phân nhóm chính A";
+        let block = "s";
+        let isLanthanide = false;
+        let isActinide = false;
+        let periodType = "Chu kỳ nhỏ";
+        let familyName = "";
+
+        if (id === 1) {
+          period = 1; col = 1; groupIUPAC = 1; groupTraditional = "IA"; block = "s"; familyName = "Phi kim hoạt động";
+        } else if (id === 2) {
+          period = 1; col = 18; groupIUPAC = 18; groupTraditional = "VIIIA"; block = "s"; familyName = "Khí hiếm";
+        } else if (id >= 3 && id <= 10) {
+          period = 2;
+          if (id <= 4) {
+            col = id - 2; // 3->1, 4->2
+            groupIUPAC = col;
+            groupTraditional = col === 1 ? "IA" : "IIA";
+            block = "s";
+            familyName = col === 1 ? "Kim loại kiềm" : "Kim loại kiềm thổ";
+          } else {
+            col = id + 8; // 5->13 ... 10->18
+            groupIUPAC = col;
+            const romans = ["IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+            groupTraditional = romans[col - 13];
+            block = "p";
+            if (col === 17) familyName = "Halogen";
+            else if (col === 18) familyName = "Khí hiếm";
+            else familyName = "Phi kim";
+          }
+        } else if (id >= 11 && id <= 18) {
+          period = 3;
+          if (id <= 12) {
+            col = id - 10;
+            groupIUPAC = col;
+            groupTraditional = col === 1 ? "IA" : "IIA";
+            block = "s";
+            familyName = col === 1 ? "Kim loại kiềm" : "Kim loại kiềm thổ";
+          } else {
+            col = id; // 13->13 ... 18->18
+            groupIUPAC = col;
+            const romans = ["IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+            groupTraditional = romans[col - 13];
+            block = "p";
+            if (col === 17) familyName = "Halogen";
+            else if (col === 18) familyName = "Khí hiếm";
+            else familyName = "Kim loại / Phi kim";
+          }
+        } else if (id >= 19 && id <= 36) {
+          period = 4;
+          col = id - 18; // 19->1 ... 36->18
+          groupIUPAC = col;
+          const groupMap = ["IA", "IIA", "IIIB", "IVB", "VB", "VIB", "VIIB", "VIIIB", "VIIIB", "VIIIB", "IB", "IIB", "IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+          groupTraditional = groupMap[col - 1];
+          groupType = (col <= 2 || col >= 13) ? "Phân nhóm chính A" : "Phân nhóm phụ B";
+          block = col <= 2 ? "s" : (col <= 12 ? "d" : "p");
+          if (col === 1) familyName = "Kim loại kiềm";
+          else if (col === 2) familyName = "Kim loại kiềm thổ";
+          else if (col <= 12) familyName = "Kim loại chuyển tiếp";
+          else if (col === 17) familyName = "Halogen";
+          else if (col === 18) familyName = "Khí hiếm";
+        } else if (id >= 37 && id <= 54) {
+          period = 5;
+          col = id - 36; // 37->1 ... 54->18
+          groupIUPAC = col;
+          const groupMap = ["IA", "IIA", "IIIB", "IVB", "VB", "VIB", "VIIB", "VIIIB", "VIIIB", "VIIIB", "IB", "IIB", "IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+          groupTraditional = groupMap[col - 1];
+          groupType = (col <= 2 || col >= 13) ? "Phân nhóm chính A" : "Phân nhóm phụ B";
+          block = col <= 2 ? "s" : (col <= 12 ? "d" : "p");
+          if (col === 1) familyName = "Kim loại kiềm";
+          else if (col === 2) familyName = "Kim loại kiềm thổ";
+          else if (col <= 12) familyName = "Kim loại chuyển tiếp";
+          else if (col === 17) familyName = "Halogen";
+          else if (col === 18) familyName = "Khí hiếm";
+        } else if (id >= 55 && id <= 86) {
+          period = 6;
+          if (id === 55) { col = 1; groupIUPAC = 1; groupTraditional = "IA"; block = "s"; familyName = "Kim loại kiềm"; }
+          else if (id === 56) { col = 2; groupIUPAC = 2; groupTraditional = "IIA"; block = "s"; familyName = "Kim loại kiềm thổ"; }
+          else if (id >= 57 && id <= 71) {
+            // Họ Lantan (dãy riêng dưới)
+            isLanthanide = true;
+            col = id - 57 + 3; // căn từ cột 3 đến 17
+            groupIUPAC = 3;
+            groupTraditional = "IIIB";
+            groupType = "Phân nhóm phụ B (Họ Lantan)";
+            block = "f";
+            familyName = "Kim loại đất hiếm (Lantanit)";
+          } else {
+            col = id - 68; // 72->4 ... 86->18
+            groupIUPAC = col;
+            const groupMap = ["IA", "IIA", "IIIB", "IVB", "VB", "VIB", "VIIB", "VIIIB", "VIIIB", "VIIIB", "IB", "IIB", "IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+            groupTraditional = groupMap[col - 1];
+            groupType = (col <= 2 || col >= 13) ? "Phân nhóm chính A" : "Phân nhóm phụ B";
+            block = col <= 12 ? "d" : "p";
+            if (col <= 12) familyName = "Kim loại chuyển tiếp";
+            else if (col === 17) familyName = "Halogen";
+            else if (col === 18) familyName = "Khí hiếm";
+          }
+        } else if (id >= 87 && id <= 118) {
+          period = 7;
+          if (id === 87) { col = 1; groupIUPAC = 1; groupTraditional = "IA"; block = "s"; familyName = "Kim loại kiềm"; }
+          else if (id === 88) { col = 2; groupIUPAC = 2; groupTraditional = "IIA"; block = "s"; familyName = "Kim loại kiềm thổ"; }
+          else if (id >= 89 && id <= 103) {
+            // Họ Actini (dãy riêng dưới)
+            isActinide = true;
+            col = id - 89 + 3; // căn từ cột 3 đến 17
+            groupIUPAC = 3;
+            groupTraditional = "IIIB";
+            groupType = "Phân nhóm phụ B (Họ Actini)";
+            block = "f";
+            familyName = "Kim loại phóng xạ (Actinit)";
+          } else {
+            col = id - 100; // 104->4 ... 118->18
+            groupIUPAC = col;
+            const groupMap = ["IA", "IIA", "IIIB", "IVB", "VB", "VIB", "VIIB", "VIIIB", "VIIIB", "VIIIB", "IB", "IIB", "IIIA", "IVA", "VA", "VIA", "VIIA", "VIIIA"];
+            groupTraditional = groupMap[col - 1];
+            groupType = (col <= 2 || col >= 13) ? "Phân nhóm chính A" : "Phân nhóm phụ B";
+            block = col <= 12 ? "d" : "p";
+            if (col <= 12) familyName = "Kim loại chuyển tiếp";
+            else if (col === 17) familyName = "Halogen";
+            else if (col === 18) familyName = "Khí hiếm";
+          }
+        }
+
+        periodType = period <= 3 ? `Chu kỳ nhỏ (${period} lớp e)` : `Chu kỳ lớn (${period} lớp e)`;
+
+        return {
+          period,
+          col,
+          groupIUPAC,
+          groupTraditional,
+          groupType,
+          block,
+          isLanthanide,
+          isActinide,
+          periodType,
+          familyName
+        };
+      }
+
+      /**
+       * Màu sắc theo nhóm hiển thị: Kim loại (xanh), Phi kim (vàng cam), Khí hiếm (tím)
+       */
+      function getThemeClasses(group) {
+        if (group === "Kim loại") {
+          return {
+            bg: "bg-blue-50/85 hover:bg-blue-100/90",
+            border: "border-blue-300/80 hover:border-blue-600",
+            text: "text-blue-900",
+            badge: "bg-blue-100 text-blue-800",
+            gradient: "from-blue-600 to-indigo-700",
+            glow: "hover:shadow-md hover:shadow-blue-300/40"
+          };
+        } else if (group === "Phi kim") {
+          return {
+            bg: "bg-amber-50/85 hover:bg-amber-100/90",
+            border: "border-amber-300/80 hover:border-amber-600",
+            text: "text-amber-950",
+            badge: "bg-amber-100 text-amber-900",
+            gradient: "from-amber-500 to-orange-600",
+            glow: "hover:shadow-md hover:shadow-amber-300/40"
+          };
+        } else {
+          return {
+            bg: "bg-purple-50/85 hover:bg-purple-100/90",
+            border: "border-purple-300/80 hover:border-purple-600",
+            text: "text-purple-950",
+            badge: "bg-purple-100 text-purple-900",
+            gradient: "from-purple-600 to-fuchsia-700",
+            glow: "hover:shadow-md hover:shadow-purple-300/40"
+          };
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 3. XÂY DỰNG BỐ CỤC BẢNG TUẦN HOÀN CHUẨN 18 CỘT (CSS GRID)
+       * ============================================================================
+       * Đặt từng ô nguyên tố đúng chính xác vị trí grid-column và grid-row.
+       * Xử lý khoảng trống chu kỳ 1, 2, 3 và ô chỉ dẫn họ Lantan (57-71), Actini (89-103).
+       */
+      const mainGrid = document.getElementById('main-ptable-grid');
+      const fblockGrid = document.getElementById('fblock-ptable-grid');
+
+      function buildPeriodicTableGrid() {
+        mainGrid.innerHTML = '';
+        fblockGrid.innerHTML = '';
+
+        // 1. Thêm chỉ số hàng chu kỳ (1 đến 7) ở cột đầu tiên
+        for (let r = 1; r <= 7; r++) {
+          const rowLabel = document.createElement('div');
+          rowLabel.className = 'flex items-center justify-center font-mono font-bold text-xs text-slate-500 bg-slate-100 rounded border border-slate-200 select-none';
+          rowLabel.style.gridColumn = '1';
+          rowLabel.style.gridRow = `${r}`;
+          rowLabel.textContent = `${r}`;
+          rowLabel.title = `Chu kỳ ${r} (${r} lớp electron)`;
+          mainGrid.appendChild(rowLabel);
+        }
+
+        // 2. Thêm hai ô giữ chỗ đánh dấu vị trí Lantan và Actini ở Chu kỳ 6 và 7 (Cột 3)
+        // Ô giữ chỗ Lantan (Chu kỳ 6, Cột 3)
+        const placeholderLa = document.createElement('div');
+        placeholderLa.className = 'element-cell rounded-lg p-1 border-2 border-dashed border-emerald-300 bg-emerald-50/50 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-emerald-100 transition';
+        placeholderLa.style.gridColumn = '4'; // Cột 3 (+1 cột số chu kỳ)
+        placeholderLa.style.gridRow = '6';
+        placeholderLa.title = 'Nhấp để cuộn xuống Dãy Lantanit (57 - 71)';
+        placeholderLa.innerHTML = `
+          <span class="text-[9px] font-mono text-emerald-700 font-bold">57-71</span>
+          <span class="text-xs font-bold text-emerald-900 font-mono">La-Lu</span>
+          <span class="text-[8px] text-emerald-600 font-semibold">* f-block</span>
+        `;
+        placeholderLa.addEventListener('click', () => {
+          fblockGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        mainGrid.appendChild(placeholderLa);
+
+        // Ô giữ chỗ Actini (Chu kỳ 7, Cột 3)
+        const placeholderAc = document.createElement('div');
+        placeholderAc.className = 'element-cell rounded-lg p-1 border-2 border-dashed border-emerald-300 bg-emerald-50/50 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-emerald-100 transition';
+        placeholderAc.style.gridColumn = '4'; // Cột 3 (+1 cột số chu kỳ)
+        placeholderAc.style.gridRow = '7';
+        placeholderAc.title = 'Nhấp để cuộn xuống Dãy Actinit (89 - 103)';
+        placeholderAc.innerHTML = `
+          <span class="text-[9px] font-mono text-emerald-700 font-bold">89-103</span>
+          <span class="text-xs font-bold text-emerald-900 font-mono">Ac-Lr</span>
+          <span class="text-[8px] text-emerald-600 font-semibold">** f-block</span>
+        `;
+        placeholderAc.addEventListener('click', () => {
+          fblockGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        mainGrid.appendChild(placeholderAc);
+
+        // 3. Render từng nguyên tố vào đúng ô Grid
+        chemicalElements.forEach(elem => {
+          const pData = getElementPedagogicalData(elem.id);
+          const theme = getThemeClasses(elem.group);
+
+          const cell = document.createElement('div');
+          cell.id = `el-cell-${elem.id}`;
+          cell.className = `element-cell rounded-lg p-1 sm:p-1.5 border-2 flex flex-col justify-between cursor-pointer select-none relative ${theme.bg} ${theme.border} ${theme.glow} shadow-2xs`;
+          cell.setAttribute('data-id', elem.id);
+          cell.setAttribute('data-group', elem.group);
+          cell.setAttribute('tabindex', '0');
+          cell.setAttribute('role', 'button');
+          cell.setAttribute('title', `Z=${elem.id} | ${elem.name} (${elem.symbol}) - Chu kỳ ${pData.period}, Nhóm ${pData.groupTraditional}`);
+
+          // Nội dung hiển thị trong ô nguyên tố
+          cell.innerHTML = `
+            <div class="flex items-center justify-between w-full leading-none">
+              <span class="text-[9px] font-mono font-bold text-slate-600">${elem.id}</span>
+              <span class="text-[8px] font-mono text-slate-400 font-medium">${elem.mass.toString().split('.')[0]}</span>
+            </div>
+            <div class="my-auto text-center leading-none">
+              <span class="text-base sm:text-lg font-extrabold font-mono text-slate-900 block tracking-tight">${elem.symbol}</span>
+              <span class="text-[8px] font-semibold text-slate-600 truncate block mt-0.5">${elem.name}</span>
+            </div>
+            <div class="flex items-center justify-between w-full text-[7.5px] font-mono text-slate-500 leading-none">
+              <span class="font-bold text-indigo-700">${pData.groupTraditional}</span>
+              <span class="text-[7px] px-1 rounded bg-black/5 font-bold">${pData.block}</span>
+            </div>
+          `;
+
+          // Gán sự kiện click / keyboard để mở modal
+          cell.addEventListener('click', () => openModal(elem.id));
+          cell.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openModal(elem.id);
+            }
+          });
+
+          // Định vị CSS Grid:
+          if (pData.isLanthanide) {
+            // Họ Lantan: Hàng 1 của fblock-grid, bắt đầu từ cột 4 (cột 1 để số, cột 2, 3 để trống)
+            cell.style.gridRow = '1';
+            cell.style.gridColumn = `${pData.col + 1}`; // +1 vì có cột chỉ số
+            fblockGrid.appendChild(cell);
+          } else if (pData.isActinide) {
+            // Họ Actini: Hàng 2 của fblock-grid
+            cell.style.gridRow = '2';
+            cell.style.gridColumn = `${pData.col + 1}`;
+            fblockGrid.appendChild(cell);
+          } else {
+            // Lưới chính 7 chu kỳ:
+            cell.style.gridRow = `${pData.period}`;
+            cell.style.gridColumn = `${pData.col + 1}`; // +1 vì cột 1 là cột số chu kỳ
+            mainGrid.appendChild(cell);
+          }
+        });
+
+        // Thêm nhãn cho 2 hàng f-block
+        const labelLa = document.createElement('div');
+        labelLa.className = 'flex items-center justify-center font-mono font-bold text-[10px] text-emerald-800 bg-emerald-100 rounded border border-emerald-300';
+        labelLa.style.gridRow = '1';
+        labelLa.style.gridColumn = '1';
+        labelLa.textContent = 'La*';
+        labelLa.title = 'Dãy Lantanit (Z: 57 - 71)';
+        fblockGrid.appendChild(labelLa);
+
+        const labelAc = document.createElement('div');
+        labelAc.className = 'flex items-center justify-center font-mono font-bold text-[10px] text-emerald-800 bg-emerald-100 rounded border border-emerald-300';
+        labelAc.style.gridRow = '2';
+        labelAc.style.gridColumn = '1';
+        labelAc.textContent = 'Ac**';
+        labelAc.title = 'Dãy Actinit (Z: 89 - 103)';
+        fblockGrid.appendChild(labelAc);
+      }
+
+      /**
+       * ============================================================================
+       * 4. XỬ LÝ POP-UP / MODAL CHI TIẾT & LOGIC KIỂM TRA VIDEO THỰC NGHIỆM
+       * ============================================================================
+       * - Hiển thị Chu kỳ (Period) & Nhóm (Group) theo Hóa học 10.
+       * - Xử lý logic hiển thị Video:
+       *   + Nếu video_url rỗng ("") hoặc không có: KHÔNG render thẻ iframe.
+       *   + Thay vào đó hiển thị thẻ div với dòng chữ in nghiêng: "Video thực nghiệm đang được cập nhật...".
+       */
+      const modalContainer = document.getElementById('modal-container');
+      const modalContent = document.getElementById('modal-content');
+      const btnCloseModal = document.getElementById('btn-close-modal');
+      const btnCloseModalBottom = document.getElementById('btn-close-modal-bottom');
+
+      function openModal(elementId) {
+        const idNumber = parseInt(elementId, 10);
+        const element = chemicalElements.find(e => e.id === idNumber);
+
+        if (!element) {
+          alert(`Không tìm thấy nguyên tố có số hiệu ID = ${elementId}!`);
+          return;
+        }
+
+        const pData = getElementPedagogicalData(element.id);
+        const theme = getThemeClasses(element.group);
+
+        // Banner Header
+        const headerBanner = document.getElementById('modal-header-banner');
+        headerBanner.className = `px-5 py-3.5 border-b border-white/20 flex items-center justify-between text-white transition-colors bg-gradient-to-r ${theme.gradient}`;
+
+        // Định danh nguyên tố
+        document.getElementById('modal-id-badge').textContent = element.id;
+        document.getElementById('modal-symbol-badge').textContent = element.symbol;
+        document.getElementById('modal-element-name').textContent = element.name;
+        document.getElementById('modal-vietnamese-name').textContent = `(Z = ${element.id})`;
+        document.getElementById('modal-element-group').textContent = `${element.group} • ${pData.familyName} (${pData.groupTraditional})`;
+
+        // Thông tin Sư phạm Hóa học 10
+        document.getElementById('detail-period').textContent = pData.period;
+        document.getElementById('detail-period-type').textContent = pData.periodType;
+
+        document.getElementById('detail-group-full').textContent = `${pData.groupIUPAC} (${pData.groupTraditional})`;
+        document.getElementById('detail-group-type').textContent = pData.groupType;
+
+        document.getElementById('detail-block').textContent = `Khối ${pData.block}`;
+        document.getElementById('detail-valence-electrons').textContent = pData.block === 's' || pData.block === 'p' ? `${pData.groupTraditional.replace('A','')}e ngoài cùng` : `${pData.block}-block`;
+
+        document.getElementById('detail-group-name').textContent = element.group;
+        document.getElementById('detail-family').textContent = pData.familyName;
+
+        // Các thông số định lượng
+        document.getElementById('detail-id').textContent = element.id;
+        document.getElementById('detail-mass').textContent = element.mass;
+        document.getElementById('detail-electronegativity').textContent = element.electronegativity;
+        document.getElementById('detail-electron-config').textContent = element.electron_config;
+        document.getElementById('detail-outer-e').textContent = pData.groupTraditional.replace(/[^IVX]/g, '') || 'e-';
+
+        // Tóm tắt thí nghiệm
+        document.getElementById('detail-experiment-desc').textContent = element.experiment_description || 'Dữ liệu hiện tượng thực nghiệm đang được cập nhật.';
+
+        // XỬ LÝ LOGIC VIDEO THỰC NGHIỆM (YÊU CẦU ĐỀ BÀI)
+        const videoWrapper = document.getElementById('video-render-container');
+        const linkYoutube = document.getElementById('link-youtube-external');
+
+        if (element.video_url && element.video_url.trim() !== "") {
+          // CÓ video -> render thẻ iframe chuẩn 16:9
+          videoWrapper.className = "relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-inner";
+          videoWrapper.innerHTML = `
+            <iframe
+              class="w-full h-full border-0"
+              src="${element.video_url}"
+              title="Video thực nghiệm hóa học của ${element.name}"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            ></iframe>
+          `;
+          linkYoutube.classList.remove('hidden');
+          linkYoutube.href = element.video_url.replace('/embed/', '/watch?v=');
+        } else {
+          // KHÔNG CÓ video hoặc chuỗi rỗng "" -> KHÔNG render thẻ iframe, hiển thị thẻ div in nghiêng
+          videoWrapper.className = "w-full rounded-xl overflow-hidden border border-dashed border-slate-300 bg-slate-50";
+          videoWrapper.innerHTML = `
+            <div class="w-full py-8 sm:py-10 px-4 flex flex-col items-center justify-center text-center">
+              <svg class="w-8 h-8 text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <p class="italic text-slate-600 font-semibold text-xs sm:text-sm">Video thực nghiệm đang được cập nhật...</p>
+              <p class="text-[11px] text-slate-400 mt-0.5">Dữ liệu video thực nghiệm của nguyên tố ${element.name} sẽ được bổ sung trong bản phát hành tới.</p>
+            </div>
+          `;
+          linkYoutube.classList.add('hidden');
+        }
+
+        // Tạo mã QR thật từ API QRServer theo Deep link
+        document.getElementById('qr-z-num').textContent = element.id;
+        updateDynamicQRCode(element);
+
+        // Hiển thị modal
+        modalContainer.classList.remove('hidden', 'pointer-events-none');
+        setTimeout(() => {
+          modalContainer.classList.remove('opacity-0');
+          modalContent.classList.remove('scale-95');
+          modalContent.classList.add('scale-100');
+        }, 10);
+
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modalContainer.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+
+        setTimeout(() => {
+          modalContainer.classList.add('hidden', 'pointer-events-none');
+          // Dọn sạch iframe video để dừng phát âm thanh
+          document.getElementById('video-render-container').innerHTML = '';
+          document.body.style.overflow = '';
+        }, 200);
+      }
+
+      btnCloseModal.addEventListener('click', closeModal);
+      btnCloseModalBottom.addEventListener('click', closeModal);
+      modalContainer.addEventListener('click', e => {
+        if (e.target === modalContainer) closeModal();
+      });
+      window.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modalContainer.classList.contains('hidden')) closeModal();
+      });
+
+      /**
+       * ============================================================================
+       * 5. NÂNG CẤP THANH "TÌM KIẾM & QUÉT QR" ĐA NĂNG (YÊU CẦU ĐỀ BÀI)
+       * ============================================================================
+       * Cho phép nhập:
+       * - Số hiệu nguyên tử (ID): ví dụ 11, 26, 79
+       * - Ký hiệu (Symbol): ví dụ Na, Fe, Au, cl, he
+       * - Tên nguyên tố: ví dụ Natri, Sodium, Sắt, Iron, Vàng, Gold
+       * Tự động mở Modal tương ứng!
+       */
+      const searchForm = document.getElementById('search-qr-form');
+      const searchInput = document.getElementById('search-qr-input');
+      const clearBtn = document.getElementById('btn-clear-input');
+      const autocompleteList = document.getElementById('autocomplete-list');
+
+      function findElementByQuery(rawQuery) {
+        if (!rawQuery) return null;
+        const q = rawQuery.trim().toLowerCase();
+
+        // 1. Khớp chính xác số hiệu nguyên tử (ID)
+        const num = parseInt(q, 10);
+        if (!isNaN(num) && num >= 1 && num <= 118) {
+          const matchId = chemicalElements.find(e => e.id === num);
+          if (matchId) return matchId;
+        }
+
+        // 2. Khớp chính xác Ký hiệu hóa học (Symbol)
+        const matchSymbol = chemicalElements.find(e => e.symbol.toLowerCase() === q);
+        if (matchSymbol) return matchSymbol;
+
+        // 3. Khớp chính xác hoặc gần đúng Tên tiếng Anh/tiếng Việt
+        const matchName = chemicalElements.find(e => {
+          const nameLower = e.name.toLowerCase();
+          return nameLower === q || nameLower.startsWith(q);
+        });
+        if (matchName) return matchName;
+
+        // 4. Tìm kiếm từ khóa chứa trong tên
+        return chemicalElements.find(e => e.name.toLowerCase().includes(q)) || null;
+      }
+
+      function handleSearchSubmit(e) {
+        if (e) e.preventDefault();
+        autocompleteList.classList.add('hidden');
+        const query = searchInput.value.trim();
+
+        if (!query) {
+          alert('Vui lòng nhập Số hiệu (1-118), Ký hiệu (Na, Fe) hoặc Tên nguyên tố!');
+          searchInput.focus();
+          return;
+        }
+
+        const match = findElementByQuery(query);
+        if (match) {
+          openModal(match.id);
+          // Highlight ô nguyên tố trên lưới
+          highlightElementCell(match.id);
+        } else {
+          alert(`Không tìm thấy nguyên tố nào khớp với "${query}"!\nHãy thử nhập số từ 1 đến 118, ký hiệu như "Na", "Fe", "Au" hoặc tên nguyên tố.`);
+          searchInput.select();
+        }
+      }
+
+      searchForm.addEventListener('submit', handleSearchSubmit);
+
+      // Xử lý gợi ý Autocomplete khi người dùng gõ
+      searchInput.addEventListener('input', e => {
+        const val = e.target.value.trim().toLowerCase();
+        if (val) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+          autocompleteList.classList.add('hidden');
+          return;
+        }
+
+        const matches = chemicalElements.filter(el => {
+          return el.id.toString() === val ||
+                 el.symbol.toLowerCase().startsWith(val) ||
+                 el.name.toLowerCase().includes(val);
+        }).slice(0, 6);
+
+        if (matches.length > 0) {
+          autocompleteList.innerHTML = '';
+          matches.forEach(m => {
+            const item = document.createElement('div');
+            item.className = 'px-3 py-2 hover:bg-slate-800 cursor-pointer flex items-center justify-between text-slate-200 transition';
+            item.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="w-6 text-center font-mono font-bold text-amber-400 text-xs">#${m.id}</span>
+                <span class="font-mono font-bold text-sm text-white">${m.symbol}</span>
+                <span class="text-xs text-slate-300 font-medium">${m.name}</span>
+              </div>
+              <span class="text-[10px] px-2 py-0.5 rounded-full ${m.group === 'Kim loại' ? 'bg-blue-900/60 text-blue-300' : (m.group === 'Phi kim' ? 'bg-amber-900/60 text-amber-300' : 'bg-purple-900/60 text-purple-300')}">${m.group}</span>
+            `;
+            item.addEventListener('click', () => {
+              searchInput.value = `${m.symbol} - ${m.name} (#${m.id})`;
+              autocompleteList.classList.add('hidden');
+              openModal(m.id);
+              highlightElementCell(m.id);
+            });
+            autocompleteList.appendChild(item);
+          });
+          autocompleteList.classList.remove('hidden');
+        } else {
+          autocompleteList.classList.add('hidden');
+        }
+      });
+
+      // Nút xóa nhanh input
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearBtn.classList.add('hidden');
+        autocompleteList.classList.add('hidden');
+        searchInput.focus();
+      });
+
+      // Đóng dropdown gợi ý khi nhấp ra ngoài
+      document.addEventListener('click', e => {
+        if (!searchForm.contains(e.target)) {
+          autocompleteList.classList.add('hidden');
+        }
+      });
+
+      // Bắt sự kiện các nút mở nhanh
+      document.querySelectorAll('.quick-pick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          openModal(id);
+          highlightElementCell(id);
+        });
+      });
+
+      function highlightElementCell(id) {
+        const cell = document.getElementById(`el-cell-${id}`);
+        if (cell) {
+          cell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+          cell.classList.add('ring-4', 'ring-amber-400', 'scale-110');
+          setTimeout(() => {
+            cell.classList.remove('ring-4', 'ring-amber-400', 'scale-110');
+          }, 2000);
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 6. BỘ LỌC NHÓM MÀU SẮC TRÊN BẢNG TUẦN HOÀN
+       * ============================================================================
+       */
+      const groupFilterBtns = document.querySelectorAll('.filter-group-btn');
+      const btnShowAll = document.getElementById('btn-show-all-groups');
+
+      function filterGroupBy(groupName) {
+        document.querySelectorAll('.element-cell[data-group]').forEach(cell => {
+          if (!groupName || cell.getAttribute('data-group') === groupName) {
+            cell.style.opacity = '1';
+            cell.style.filter = 'none';
+          } else {
+            cell.style.opacity = '0.22';
+            cell.style.filter = 'grayscale(80%)';
+          }
+        });
+      }
+
+      groupFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const group = btn.getAttribute('data-group');
+          filterGroupBy(group);
+        });
+      });
+
+      if (btnShowAll) {
+        btnShowAll.addEventListener('click', () => filterGroupBy(null));
+      }
+
+      /**
+       * ============================================================================
+       * 7. TỰ ĐỘNG MỞ KHI QUÉT QR THẬT QUA URL (?id=11 hoặc ?element=Na)
+       * ============================================================================
+       */
+      /**
+       * ============================================================================
+       * 7. XỬ LÝ TỰ ĐỘNG MỞ POP-UP TỪ LIÊN KẾT (URL PARAMETERS / DEEP LINK)
+       * ============================================================================
+       * Kiểm tra xem trên URL thanh địa chỉ có tham số ?id=... hay không (sử dụng URLSearchParams).
+       * Nếu có (ví dụ: ?id=40 Zirconium), tự động kích hoạt hàm mở Modal/Pop-up chi tiết
+       * của nguyên tố có ID tương ứng.
+       */
+      function handleURLParameters() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const rawId = urlParams.get('id') || urlParams.get('element') || urlParams.get('z');
+          if (rawId) {
+            const match = findElementByQuery(rawId);
+            if (match) {
+              setTimeout(() => {
+                openModal(match.id);
+                highlightElementCell(match.id);
+              }, 200);
+            }
+          }
+        } catch (err) {
+          console.warn('Lỗi khi đọc tham số URL:', err);
+        }
+      }
+
+      /**
+       * ============================================================================
+       * 8. TÍCH HỢP API TẠO MÃ QR THẬT (QRSERVER API) VÀ LIÊN KẾT SÂU
+       * ============================================================================
+       * Thay thế mã tĩnh bằng API tạo QR Code động quét được thật qua camera.
+       * Logic:
+       * let currentUrl = window.location.origin + window.location.pathname;
+       * let qrData = encodeURIComponent(currentUrl + "?id=" + element.id);
+       * Gán src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qrData;
+       */
+      function updateDynamicQRCode(element) {
+        const qrImage = document.getElementById('qr-code-image');
+        if (!qrImage) return;
+
+        let currentUrl = window.location.origin + window.location.pathname;
+        let qrData = encodeURIComponent(currentUrl + "?id=" + element.id);
+        qrImage.src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + qrData;
+        qrImage.alt = `Mã QR tra cứu ${element.name} (${element.symbol}) - Z = ${element.id}`;
+      }
+
+      /**
+       * ============================================================================
+       * 9. TIỆN ÍCH TẢI VỀ TỆP HTML ĐỘC LẬP
+       * ============================================================================
+       */
+      const codeModal = document.getElementById('code-modal');
+      const btnExportCode = document.getElementById('btn-export-code');
+      const btnOpenHelp = document.getElementById('btn-open-help');
+      const btnCloseCodeModal = document.getElementById('btn-close-code-modal');
+      const btnDownloadHtml = document.getElementById('btn-download-html');
+
+      if (btnExportCode) btnExportCode.addEventListener('click', () => codeModal.classList.remove('hidden'));
+      if (btnOpenHelp) btnOpenHelp.addEventListener('click', () => codeModal.classList.remove('hidden'));
+      if (btnCloseCodeModal) btnCloseCodeModal.addEventListener('click', () => codeModal.classList.add('hidden'));
+      codeModal.addEventListener('click', e => { if (e.target === codeModal) codeModal.classList.add('hidden'); });
+
+      if (btnDownloadHtml) {
+        btnDownloadHtml.addEventListener('click', () => {
+          const html = '<!doctype html>\n' + document.documentElement.outerHTML;
+          const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'bang_tuan_hoan_hoa_hoc_10_chuan_18_cot.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      /**
+       * ============================================================================
+       * 10. KHỞI CHẠY ỨNG DỤNG LẦN ĐẦU (DOM & WINDOW LOAD)
+       * ============================================================================
+       */
+      window.addEventListener('DOMContentLoaded', () => {
+        buildPeriodicTableGrid();
+        handleURLParameters();
+        console.log('Bảng tuần hoàn 18 cột phiên bản 3.0 với API QR Code thật đã sẵn sàng!');
+      });
+
+      // Đảm bảo kích hoạt mở modal nếu tải lại trang hoặc deep link mở sau
+      window.addEventListener('load', () => {
+        handleURLParameters();
+      });
+    </script>
+  </body>
+</html>

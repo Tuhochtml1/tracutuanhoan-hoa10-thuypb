@@ -1,0 +1,6 @@
+{
+  "name": "Bảng Tuần Hoàn Hóa Học Tương Tác - STEM THPT",
+  "description": "Ứng dụng Bảng tuần hoàn hóa học tương tác phục vụ dự án STEM cho học sinh THPT với thông số nguyên tố, video thí nghiệm trực quan và mô phỏng quét mã QR.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
